@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEYTH STUDIO | Genesis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Outfit:wght@100;200;300;400;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <!-- Post Processing -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Zen Kaku Gothic New"', 'sans-serif'],
+                        eng: ['"Outfit"', 'sans-serif'],
+                        serif: ['"Cormorant Garamond"', 'serif'],
+                    },
+                    colors: {
+                        'void': '#000000',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <div id="canvas-container"></div>
+
+    <!-- Loading Screen -->
+    <div id="loader"
+        class="fixed inset-0 z-[100] bg-black flex items-center justify-center transition-opacity duration-1000 pointer-events-none">
+        <div class="text-center">
+            <div class="font-eng text-xs tracking-[0.5em] text-slate-500 mb-4">GENESIS</div>
+            <div class="w-32 h-[1px] bg-slate-800 mx-auto overflow-hidden">
+                <div class="w-full h-full bg-white animate-[loading_1.5s_ease-in-out_infinite] origin-left"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Layer -->
+    <header class="fixed w-full top-0 z-50 mix-blend-difference">
+        <div class="max-w-7xl mx-auto px-6 py-8 flex justify-between items-center">
+            <a href="#"
+                class="text-xl font-eng font-light tracking-[0.3em] text-white opacity-0 animate-[fadeIn_1s_ease-out_1s_forwards]">
+                BEYTH STUDIO
+            </a>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-12 text-xs font-eng tracking-widest text-slate-400">
+                    <li><a href="#about" class="hover:text-white transition-colors duration-500">ABOUT</a></li>
+                    <li><a href="#products" class="hover:text-white transition-colors duration-500">PRODUCTS</a></li>
+                    <li><a href="#contact" class="hover:text-white transition-colors duration-500">CONTACT</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section (Scroll Trigger) -->
+        <section
+            class="h-screen flex flex-col justify-center items-center text-center relative px-4 pointer-events-none">
+            <h1
+                class="font-eng text-white tracking-[0.5em] text-2xl md:text-4xl mb-8 opacity-0 hero-text drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
+                BEYTH STUDIO
+            </h1>
+            <!-- Removed Genesis/REWRITE DESTINY text as per user request v11.13 -->
+            <p
+                class="text-slate-200 max-w-md mx-auto leading-loose font-light text-sm opacity-0 hero-text tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                あなたの航路を、より良いものに。
+            </p>
+
+            <!-- Scroll indicator removed (v11.17) -->
+        </section>
+
+        <!-- Spacer for Scroll -->
+        <div class="h-[50vh]"></div>
+
+        <!-- About Section -->
+        <section id="about" class="min-h-screen flex items-center justify-center px-6 relative z-10">
+            <div class="max-w-6xl w-full grid md:grid-cols-2 gap-20 items-center">
+                <div class="glass-panel p-12 rounded-sm opacity-0 scroll-reveal">
+                    <h2 class="font-eng text-4xl mb-8 tracking-widest font-thin">PHILOSOPHY</h2>
+                    <p class="text-white text-xl mb-8 font-serif leading-relaxed">
+                        何気ない今日を、愛おしい一日に。
+                    </p>
+                    <p class="text-slate-300 leading-loose mb-8 font-light text-sm">
+                        朝、大切な人と「おはよう」と笑い合ったり。<br>
+                        夜、美味しい料理を囲んで談笑したり。<br>
+                        一日の終わりに、今日の出来事を静かに語り合ったり。<br><br>
+                        私たちが大切にしたいのは、そんな、誰もが持てるはずの幸せな日常です。
+                    </p>
+                    <p class="text-slate-400 leading-loose font-light text-sm">
+                        SNSで外の世界と簡単に繋がれる時代だからこそ、<br>
+                        すぐそばにある「大切な人達」との関係を、もっと深く、温かいものに。<br><br>
+                        BEYTH STUDIOは、あなたの人生という長い航路を、<br>
+                        より良い方向へそっと導けるような、そんな道具（ツール）を作っていきます。
+                    </p>
+                </div>
+                <div class="hidden md:block">
+                    <!-- 3D space reserved -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section id="products" class="min-h-screen flex items-center justify-center px-6 relative z-10">
+            <div class="max-w-7xl w-full">
+                <h2
+                    class="font-eng text-4xl md:text-6xl tracking-[0.2em] mb-24 text-center opacity-0 scroll-reveal mix-blend-overlay">
+                    PRODUCTS</h2>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div
+                        class="glass-panel p-12 rounded-sm group hover:bg-white/5 transition duration-700 opacity-0 scroll-reveal">
+                        <div class="font-eng text-xs tracking-widest text-purple-400 mb-4">01 / DEVELOPMENT</div>
+                        <h3
+                            class="text-3xl font-serif italic mb-6 text-white group-hover:text-purple-300 transition duration-500">
+                            Couple Tools</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            ふたりの時間、想い、そして未来を共有するサンクチュアリ。
+                            日常のノイズから離れ、大切な人とのつながりだけを感じられる空間を創造中。
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-12 rounded-sm flex items-center justify-center opacity-0 scroll-reveal"
+                        style="transition-delay: 0.2s;">
+                        <div class="text-center">
+                            <div class="font-eng text-xs tracking-widest text-slate-600 mb-4">02 / COMING SOON</div>
+                            <h3 class="text-3xl font-eng font-thin text-slate-500">NEXT PROJECT</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer id="contact" class="py-32 border-t border-white/5 relative z-10 bg-black/50 backdrop-blur-xl">
+            <div class="max-w-4xl mx-auto px-6 text-center">
+                <h2 class="font-eng text-3xl tracking-[0.5em] mb-12 text-white opacity-0 scroll-reveal">BEYTH STUDIO
+                </h2>
+
+                <div class="flex justify-center space-x-12 mb-16 opacity-0 scroll-reveal">
+                    <a href="mailto:hello@beythstudio.com"
+                        class="text-sm font-eng tracking-widest text-slate-400 hover:text-white transition border-b border-transparent hover:border-white pb-1">HELLO@BEYTHSTUDIO.COM</a>
+                </div>
+
+                <div
+                    class="flex justify-center space-x-8 text-[10px] font-eng text-slate-600 tracking-widest opacity-0 scroll-reveal">
+                    <a href="privacy.html" target="_blank" rel="noopener noreferrer"
+                        class="hover:text-slate-400 transition">PRIVACY POLICY</a>
+                    <span>&copy; 2025 BEYTH STUDIO</span>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Shaders -->
+    <script id="vertexShader" type="x-shader/x-vertex">
+        uniform float time;
+        uniform vec2 mouse;
+        attribute float size;
+        attribute vec3 customColor;
+        attribute float aLife; // Random value 0-1 for life cycle
+        varying vec3 vColor;
+        varying float vLife;
+
+        // Simple noise function
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+        float snoise(vec2 v) {
+            const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+            vec2 i  = floor(v + dot(v, C.yy) );
+            vec2 x0 = v - i + dot(i, C.xx);
+            vec2 i1;
+            i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+            vec4 x12 = x0.xyxy + C.xxzz;
+            x12.xy -= i1;
+            i = mod289(i);
+            vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+            vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+            m = m*m ;
+            m = m*m ;
+            vec3 x = 2.0 * fract(p * C.www) - 1.0;
+            vec3 h = abs(x) - 0.5;
+            vec3 ox = floor(x + 0.5);
+            vec3 a0 = x - ox;
+            m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+            vec3 g;
+            g.x  = a0.x  * x0.x  + h.x  * x0.y;
+            g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+            return 130.0 * dot(m, g);
+        }
+
+        void main() {
+            vLife = aLife;
+            vec3 pos = position;
+            
+            vColor = customColor;
+            
+            // Shift color towards white/gold when close to others (simulated by attraction)
+            vColor = mix(vColor, vec3(1.0, 0.9, 0.5), attraction);
+
+            vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
+            gl_PointSize = finalSize * ( 300.0 / -mvPosition.z );
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    </script>
+
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        uniform vec3 color;
+        uniform sampler2D pointTexture;
+        uniform float time;
+        varying vec3 vColor;
+        varying float vLife;
+
+        void main() {
+            // Soft circle shape
+            vec2 coord = gl_PointCoord - vec2(0.5);
+            float dist = length(coord);
+            if (dist > 0.5) discard;
+
+            // Heartbeat pulse in alpha
+            float pulse = 0.8 + 0.2 * sin(time * 5.0 + vLife * 50.0);
+            
+            // Soft edge glow
+            float glow = 1.0 - (dist * 2.0);
+            glow = pow(glow, 1.5);
+
+            gl_FragColor = vec4( color * vColor, glow * pulse );
+            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+        }
+    </script>
+
+    <script>
+        // --- Initialization ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        // Deep space fog
+        scene.fog = new THREE.FogExp2(0x050510, 0.0005);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
+        camera.position.z = 1000;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        container.appendChild(renderer.domElement);
+
+        // --- Post Processing (Bloom) ---
+        const renderScene = new THREE.RenderPass(scene, camera);
+        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.1;
+        bloomPass.strength = 2.0; // Strong bloom for "creation" effect
+        bloomPass.radius = 0.5;
+
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        // --- Particles (v9.0: The Origin - Light of Destiny) ---
+        const geometry = new THREE.BufferGeometry();
+        const count = 40000; // Reduced count (v11.12)
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+        const sizes = new Float32Array(count);
+        const lifes = new Float32Array(count);
+
+        // Palette: Golden Origin (Truth & Wealth)
+        const colorPlatinum = new THREE.Color(0xe5e4e2); // Platinum (Truth)
+        const colorGold = new THREE.Color(0xffd700); // Pure Gold (Wealth/Power)
+        const colorWhiteGold = new THREE.Color(0xffec8b); // Light Goldenrod (Bridge)
+        const colorWarmLight = new THREE.Color(0xffe4b5); // Moccasin (Life)
+
+        for (let i = 0; i < count; i++) {
+            // Mystical Core Distribution (Preserved)
+            let x, y, z;
+            const r = Math.random();
+
+            if (r < 0.5) {
+                // Core (The Singularity)
+                const radius = Math.pow(Math.random(), 2.5) * 800;
+                const theta = Math.random() * 2 * Math.PI;
+                const phi = Math.acos(2 * Math.random() - 1);
+
+                x = radius * Math.sin(phi) * Math.cos(theta);
+                y = radius * Math.sin(phi) * Math.sin(theta) * 0.9;
+                z = radius * Math.cos(phi);
+            } else {
+                // The Expansion (Souls spreading out)
+                x = (Math.random() - 0.5) * 5000;
+                y = (Math.random() - 0.5) * 4000;
+                z = (Math.random() - 0.5) * 5000;
+            }
+
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+
+            // Colors: Golden Origin Mix
+            // 40% Rich Gold, 30% Platinum, 30% Warm/White
+            const mixRatio = Math.random();
+            let mixedColor;
+
+            if (mixRatio < 0.4) {
+                // Rich Gold Base
+                mixedColor = colorGold.clone().lerp(colorWhiteGold, Math.random() * 0.5);
+            } else if (mixRatio < 0.7) {
+                // Platinum/Truth Highlights
+                mixedColor = colorPlatinum.clone().lerp(colorGold, Math.random() * 0.3);
+            } else {
+                // Warm Life
+                mixedColor = colorWarmLight.clone().lerp(colorWhiteGold, Math.random());
+            }
+
+            colors[i * 3] = mixedColor.r;
+            colors[i * 3 + 1] = mixedColor.g;
+            colors[i * 3 + 2] = mixedColor.b;
+
+            sizes[i] = Math.random() * 4 + 2;
+            lifes[i] = Math.random();
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        geometry.setAttribute('aLife', new THREE.BufferAttribute(lifes, 1));
+
+        // Custom Shader Material
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                color: { value: new THREE.Color(0xffffff) },
+                pointTexture: { value: new THREE.TextureLoader().load('https://threejs.org/examples/textures/sprites/spark1.png') },
+                time: { value: 0.0 }
+            },
+            vertexShader: `
+                uniform float time;
+                uniform vec2 mouse;
+                attribute float size;
+                attribute vec3 customColor;
+                attribute float aLife;
+                varying vec3 vColor;
+                varying float vLife;
+
+                void main() {
+                    vLife = aLife;
+                    vec3 pos = position;
+                    
+                    // v11.0: RETURN TO SOURCE (Inward Flow)
+                    // Particles start far away and slowly journey towards the center (Core).
+                    // When they reach the center, they are "absorbed" and respawn at the edge.
+                    
+                    float maxDist = 4000.0; // The outer boundary
+                    float speed = 1.5; // Just a bit slower (v11.9)
+                    
+                    // Calculate current distance based on time
+                    float dist = length(pos);
+                    vec3 dir = normalize(pos);
+                    
+                    // Move inwards: subtract time from distance
+                    // Use mod to cycle: (initial - time) % max
+                    // We add a large multiple of maxDist to ensure it stays positive before mod
+                    float currentDist = mod(dist - time * speed + maxDist * 100.0, maxDist);
+                    
+                    // Apply the new distance to the position
+                    pos = dir * currentDist;
+                    
+                    // Removed Ascension (v11.3) to ensure straight path to core
+
+                    // Breathing Size
+                    float breathing = 0.5 + 0.5 * sin(time * 1.5 + aLife * 100.0);
+                    float finalSize = size * (0.7 + 0.3 * breathing);
+                    
+                    // v11.9: Maintain Core Size
+                    // Instead of shrinking, we keep them visible or slightly larger to ensure the core looks substantial.
+                    if (currentDist < 450.0) {
+                        finalSize *= 1.8; // Medium boost size near the core (v11.11)
+                    }
+
+                    // Overdraw Protection
+                    vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
+                    float distToCamera = -mvPosition.z;
+                    if (distToCamera < 50.0) {
+                        finalSize *= smoothstep(0.0, 50.0, distToCamera);
+                    }
+
+                    vColor = customColor;
+                    
+                    // Light Pulse
+                    vColor += vec3(breathing * 0.3); // Radiate light
+
+                    gl_PointSize = finalSize * ( 300.0 / -mvPosition.z );
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 color;
+                uniform sampler2D pointTexture;
+                uniform float time;
+                varying vec3 vColor;
+                varying float vLife;
+
+                void main() {
+                    // Soft, Ethereal Glow (Soul Particle)
+                    vec2 coord = gl_PointCoord - vec2(0.5);
+                    float dist = length(coord);
+                    if (dist > 0.5) discard;
+
+                    // Softer falloff for a "halo" effect
+                    float glow = 1.0 - (dist * 2.0);
+                    glow = pow(glow, 2.0); // Smooth glow
+
+                    // Inner bright core
+                    float core = 1.0 - (dist * 2.0);
+                    core = pow(core, 8.0); // Sharp bright center
+
+                    // Combine
+                    float alpha = glow * 0.8 + core * 0.5;
+                    
+                    // Gentle pulse
+                    float pulse = 0.9 + 0.1 * sin(time * 3.0 + vLife * 50.0);
+
+                    gl_FragColor = vec4( color * vColor, alpha * pulse );
+                    gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+                }
+            `,
+            blending: THREE.AdditiveBlending,
+            depthTest: false,
+            transparent: true
+        });
+
+        const particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+
+        // --- Animation Loop ---
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX) / windowHalfX;
+            mouseY = -(event.clientY - windowHalfY) / windowHalfY;
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = clock.getElapsedTime();
+
+            material.uniforms.time.value = time;
+
+            // Smooth mouse interpolation for Camera Parallax
+            targetX += (mouseX - targetX) * 0.05;
+            targetY += (mouseY - targetY) * 0.05;
+
+            // Camera Parallax (Subtle)
+            camera.position.x += (targetX * 20 - camera.position.x) * 0.05;
+            camera.position.y += (targetY * 20 - camera.position.y) * 0.05;
+
+            // Scroll Interaction
+            const scrollY = window.scrollY;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const scrollFraction = scrollY / maxScroll;
+
+            // Fly from distance (600) into the core (200)
+            // v11.16: Closer Start (User requested to be closer than 1000, but outside 450)
+            const zPos = 600 - (scrollFraction * 400);
+            camera.position.z = zPos;
+
+            // Always look at the center
+            camera.lookAt(0, 0, 0);
+
+            // Rotation: The Universe Slowly Turns
+            // Represents the passage of time and destiny
+            particles.rotation.y = time * 0.002;
+            particles.rotation.z = time * 0.0005;
+
+            composer.render();
+        }
+
+        animate();
+
+        // --- Resize Handler ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- GSAP Animations ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Loader
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+
+                // Hero Text Reveal
+                gsap.to('.hero-text', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1.5,
+                    stagger: 0.2,
+                    ease: 'power3.out'
+                });
+            }, 1000);
+        });
+
+        // Scroll Reveal Elements
+        gsap.utils.toArray('.scroll-reveal').forEach(element => {
+            gsap.fromTo(element,
+                { opacity: 0, y: 50 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: element,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
+                }
+            );
+        });
+
+        // Keyframes for Loading
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes loading {
+                0% { transform: scaleX(0); }
+                50% { transform: scaleX(1); }
+                100% { transform: scaleX(0); transform-origin: right; }
+            }
+            @keyframes fadeIn {
+                to { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+    </script>
+</body>
+
+</html>
