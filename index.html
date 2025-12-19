@@ -412,10 +412,10 @@
                     // v11.18: Non-linear braking to fix "Hollow Core" issue
                     // We convert the linear progress to a power curve.
                     // ratio goes from 1.0 (edge) down to 0.0 (center).
-                    // pow(ratio, 1.5) makes the slope (speed) lower as it approaches 0.
+                    // pow(ratio, 3.0) makes the slope (speed) MUCH lower as it approaches 0.
                     
                     float ratio = linearDist / maxDist;
-                    float currentDist = maxDist * pow(ratio, 1.5); 
+                    float currentDist = maxDist * pow(ratio, 3.0); // 3.0 power curve for strong braking 
                     
                     // Apply the new distance to the position
                     pos = dir * currentDist;
