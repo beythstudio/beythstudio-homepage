@@ -407,7 +407,15 @@
                     // Move inwards: subtract time from distance
                     // Use mod to cycle: (initial - time) % max
                     // We add a large multiple of maxDist to ensure it stays positive before mod
-                    float currentDist = mod(dist - time * speed + maxDist * 100.0, maxDist);
+                    float linearDist = mod(dist - time * speed + maxDist * 100.0, maxDist);
+                    
+                    // v11.18: Non-linear braking to fix "Hollow Core" issue
+                    // We convert the linear progress to a power curve.
+                    // ratio goes from 1.0 (edge) down to 0.0 (center).
+                    // pow(ratio, 1.5) makes the slope (speed) lower as it approaches 0.
+                    
+                    float ratio = linearDist / maxDist;
+                    float currentDist = maxDist * pow(ratio, 1.5); 
                     
                     // Apply the new distance to the position
                     pos = dir * currentDist;
