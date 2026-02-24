@@ -48,6 +48,14 @@
             line-height: 1.8;
         }
 
+        .legal-content h2 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: white;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
         .legal-content ul {
             list-style-type: disc;
             padding-left: 1.5rem;
@@ -77,19 +85,40 @@
 
         <div class="glass-card rounded-3xl p-8 md:p-12 legal-content">
 
-            <p class="text-sm text-slate-500 mb-8">最終更新日：2026-02-14</p>
+            <p class="text-sm text-slate-500 mb-8">最終更新日：2026-02-24</p>
 
             <p>このページでは、「ライムの木」における利用者情報の外部送信について説明します。</p>
 
-            <p>2026年2月14日時点で、本アプリは外部解析・広告配信サービス等への自動送信を行っていません。</p>
-
+            <h2>1. 送信先サービス</h2>
             <ul>
-                <li>広告SDK：未導入</li>
-                <li>アクセス解析SDK：未導入</li>
-                <li>クラッシュレポートSDK：未導入</li>
+                <li>Google Firebase（Authentication / Firestore / Cloud Functions）</li>
+                <li>Google Sign-In / Sign in with Apple</li>
+                <li>Google Mobile Ads（動画広告）</li>
+                <li>App Store / Google Play（アプリ内課金・復元）</li>
             </ul>
 
-            <p>将来、外部サービスを導入する場合は、送信先、送信項目、利用目的、停止方法を本ページおよびプライバシーポリシーに追記します。</p>
+            <h2>2. 主な送信項目と目的</h2>
+            <ul>
+                <li>認証連携：UID、認証トークン、連携プロバイダ情報（ログイン状態維持、アカウント連携）</li>
+                <li>クラウドデータ：語句データ、設定、進行情報、バックアップ履歴（バックアップ・復元・同期）</li>
+                <li>課金関連：商品ID、購入状態、購入検証に必要な情報（購入処理、検証、復元、不正対策）</li>
+                <li>広告関連：広告リクエスト情報、報酬判定用セッション情報（動画広告の表示と報酬付与）</li>
+            </ul>
+
+            <h2>3. 送信が行われるタイミング</h2>
+            <ul>
+                <li>Apple / Google でアカウント連携する時</li>
+                <li>連携済みでバックアップや復元を実行する時</li>
+                <li>ランキング関連データの同期が行われる時</li>
+                <li>ショップで課金・復元を実行する時</li>
+                <li>動画広告ボーナスを利用する時</li>
+            </ul>
+
+            <h2>4. 解析・計測について</h2>
+            <p>2026年2月24日時点で、アプリ行動分析のための独立した分析SDK（例：Firebase Analytics）やクラッシュ解析SDKは常時利用していません。</p>
+
+            <h2>5. 変更時の告知</h2>
+            <p>送信先、送信項目、利用目的に重要な変更がある場合は、本ページおよび関連ポリシーを更新して告知します。</p>
         </div>
 
         <div class="mt-8 text-center">
