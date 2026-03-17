@@ -61,6 +61,13 @@
             padding-left: 1.5rem;
             margin: 0.5rem 0;
         }
+
+        .store-badge-disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+            pointer-events: none;
+            filter: grayscale(1) saturate(0) brightness(0.85);
+        }
     </style>
 </head>
 
@@ -84,7 +91,7 @@
         </div>
 
         <div class="glass-card rounded-3xl p-8 md:p-12 content">
-            <p class="text-sm text-slate-500 mb-8">最終更新日：2026-02-24</p>
+            <p class="text-sm text-slate-500 mb-8">最終更新日：2026-03-17</p>
 
             <p>「ライムの木」は、韻（ライム）を記録・収集し、育成とクイズを通じて語彙を育てるモバイルアプリです。</p>
 
@@ -97,6 +104,19 @@
                 <li>ページ容量追加、ログインボーナス、動画広告ボーナス</li>
             </ul>
 
+            <h2>ストア公開状況</h2>
+            <div class="mt-6 flex flex-col items-center gap-4">
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <button type="button" disabled aria-disabled="true" class="store-badge-disabled">
+                        <img src="../appstore.svg" alt="Download on the App Store" class="h-[40px] w-auto">
+                    </button>
+                    <button type="button" disabled aria-disabled="true" class="store-badge-disabled">
+                        <img src="../googleplay.svg" alt="Get it on Google Play" class="h-[40px] w-auto">
+                    </button>
+                </div>
+                <p class="text-sm font-eng tracking-[0.2em] text-slate-500">審査中</p>
+            </div>
+
             <h2>お問い合わせ</h2>
             <p>support@beythstudio.com</p>
 
@@ -104,8 +124,10 @@
             <ul>
                 <li><a href="privacy.html" class="text-blue-300 hover:text-blue-200 transition">プライバシーポリシー</a></li>
                 <li><a href="terms.html" class="text-blue-300 hover:text-blue-200 transition">利用規約</a></li>
+                <li><a href="tokusho.html" class="text-blue-300 hover:text-blue-200 transition">特定商取引法に基づく表記</a></li>
                 <li><a href="external-data-policy.html"
                         class="text-blue-300 hover:text-blue-200 transition">利用者情報の外部送信ポリシー</a></li>
+                <li><a href="support.html" class="text-blue-300 hover:text-blue-200 transition">サポート</a></li>
                 <li><a href="https://rhyme-tree-prod.web.app/delete-account.html"
                         class="text-blue-300 hover:text-blue-200 transition">アカウント削除手順</a></li>
             </ul>
