@@ -101,6 +101,70 @@
         .animate-pulse-slow {
             animation: pulse-slow 4s ease-in-out infinite;
         }
+
+        .product-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .review-badge-disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+            pointer-events: none;
+            filter: grayscale(1) saturate(0) brightness(0.85);
+        }
+
+        .rhyme-tree-badge {
+            width: 8rem;
+            height: 8rem;
+            border-radius: 1.75rem;
+            position: relative;
+            background:
+                radial-gradient(circle at 50% 30%, rgba(187, 247, 208, 0.18), transparent 34%),
+                radial-gradient(circle at 50% 88%, rgba(245, 158, 11, 0.14), transparent 24%),
+                linear-gradient(180deg, rgba(11, 18, 32, 0.96), rgba(9, 12, 20, 0.92));
+            border: 1px solid rgba(187, 247, 208, 0.14);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .rhyme-tree-badge::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 1.45rem;
+            width: 0.95rem;
+            height: 2.4rem;
+            transform: translateX(-50%);
+            border-radius: 999px;
+            background: linear-gradient(180deg, #8b5a2b, #4b2e16);
+            box-shadow: 0 0 20px rgba(139, 92, 42, 0.2);
+        }
+
+        .rhyme-tree-badge::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 1.2rem;
+            width: 4.5rem;
+            height: 4.5rem;
+            transform: translateX(-50%);
+            border-radius: 999px 999px 1.4rem 1.4rem;
+            background:
+                radial-gradient(circle at 32% 35%, rgba(255, 255, 255, 0.16), transparent 20%),
+                radial-gradient(circle at 68% 38%, rgba(255, 255, 255, 0.12), transparent 18%),
+                radial-gradient(circle at 50% 55%, rgba(34, 197, 94, 0.95), rgba(20, 83, 45, 0.96));
+            box-shadow: 0 0 28px rgba(74, 222, 128, 0.14);
+        }
+
+        .product-card-link {
+            color: #cbd5e1;
+            transition: color 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
+        }
+
+        .product-card-link:hover {
+            color: #ffffff;
+        }
     </style>
     <meta name="google-site-verification" content="j7tbbjF2nMdNm3nH-FnFJfHTV13XMTFcjdo8QKFCyXQ" />
 
@@ -200,7 +264,7 @@
                     class="font-eng text-4xl md:text-6xl tracking-[0.2em] mb-24 text-center opacity-0 scroll-reveal mix-blend-overlay">
                     PRODUCTS</h2>
 
-                <div class="max-w-3xl mx-auto">
+                <div class="max-w-3xl mx-auto product-stack">
                     <div
                         class="glass-panel p-12 rounded-sm group hover:bg-white/5 transition duration-700 opacity-0 scroll-reveal">
                         <div
@@ -262,13 +326,57 @@
                         </div>
                     </div>
 
-                    <!-- Next Project (Moved below v11.23, Visibility Boost v11.24) -->
-                    <div class="mt-24 text-center opacity-0 scroll-reveal">
-                        <div class="font-eng text-xs tracking-widest text-purple-300 mb-4 animate-pulse-slow">COMING
-                            SOON
+                    <div
+                        class="glass-panel p-12 rounded-sm group hover:bg-emerald-50/5 transition duration-700 opacity-0 scroll-reveal">
+                        <div
+                            class="glass-panel p-12 rounded-sm flex flex-col justify-center items-center text-center product-card-content">
+
+                            <div class="animate-float mb-6 opacity-0 reveal-item select-none">
+                                <div class="rhyme-tree-badge" aria-hidden="true"></div>
+                            </div>
+
+                            <div class="opacity-0 reveal-item">
+                                <div class="font-eng text-xs tracking-[0.4em] text-emerald-200/70 mb-4">IN REVIEW
+                                </div>
+                                <h3 class="font-serif text-3xl mb-6 text-white">ライムの木</h3>
+                            </div>
+
+                            <p
+                                class="text-slate-400 font-sans leading-relaxed text-sm max-w-md mx-auto opacity-0 reveal-item">
+                                韻を記録し、集め、育てていく語彙コレクション。<br>
+                                検索、図鑑、クイズ、木の成長演出をひとつにつないだモバイルアプリ。
+                            </p>
+
+                            <div class="mt-8 flex flex-col items-center gap-4 opacity-0 reveal-item">
+                                <a href="rhyme-tree/index.html"
+                                    class="product-card-link inline-flex items-center gap-2 px-5 py-2.5 border border-emerald-200/20 rounded-full bg-emerald-100/5 hover:bg-emerald-100/10 hover:border-emerald-200/40 text-sm font-eng tracking-[0.2em]">
+                                    OPEN OVERVIEW
+                                </a>
+
+                                <div class="flex flex-wrap gap-4 items-center justify-center">
+                                    <button type="button" disabled aria-disabled="true" class="review-badge-disabled">
+                                        <img src="appstore.svg" alt="Download on the App Store" class="h-[40px] w-auto">
+                                    </button>
+                                    <button type="button" disabled aria-disabled="true" class="review-badge-disabled">
+                                        <img src="googleplay.svg" alt="Get it on Google Play" class="h-[40px] w-auto">
+                                    </button>
+                                </div>
+
+                                <div class="text-xs font-eng tracking-[0.35em] text-emerald-200/70">審査中</div>
+
+                                <div
+                                    class="flex flex-wrap gap-3 items-center justify-center mt-2 text-xs font-eng tracking-wider">
+                                    <a href="rhyme-tree/privacy.html"
+                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Privacy</a>
+                                    <a href="rhyme-tree/terms.html"
+                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Terms</a>
+                                    <a href="rhyme-tree/tokusho.html"
+                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Tokusho</a>
+                                    <a href="rhyme-tree/support.html"
+                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Support</a>
+                                </div>
+                            </div>
                         </div>
-                        <h3 class="text-3xl font-eng font-thin text-white text-glow animate-pulse-slow">NEXT PROJECT
-                        </h3>
                     </div>
                 </div>
             </div>
