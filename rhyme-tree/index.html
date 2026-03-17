@@ -68,6 +68,24 @@
             pointer-events: none;
             filter: grayscale(1) saturate(0) brightness(0.85);
         }
+
+        .hero-icon {
+            display: block;
+            width: 8rem;
+            height: 8rem;
+            object-fit: cover;
+            border-radius: 1.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+        }
+
+        .lead-copy {
+            color: #dbeafe;
+            line-height: 1.9;
+            text-align: center;
+            max-width: 34rem;
+            margin: 0 auto;
+        }
     </style>
 </head>
 
@@ -86,6 +104,8 @@
 
     <main class="pt-32 pb-20 px-6 max-w-4xl mx-auto">
         <div class="text-center mb-8">
+            <img src="../assets/rhyme-tree-icon-1024.png" alt="ライムの木 App Icon"
+                class="hero-icon mx-auto mb-6 ring-1 ring-white/10">
             <p class="text-sm font-eng tracking-widest text-slate-500 mb-2">ライムの木</p>
             <h1 class="text-3xl md:text-4xl font-eng tracking-widest">APP OVERVIEW</h1>
         </div>
@@ -93,7 +113,7 @@
         <div class="glass-card rounded-3xl p-8 md:p-12 content">
             <p class="text-sm text-slate-500 mb-8">最終更新日：2026-03-17</p>
 
-            <p>「ライムの木」は、韻（ライム）を記録・収集し、育成とクイズを通じて語彙を育てるモバイルアプリです。</p>
+            <p class="lead-copy">韻を集め、育て、ひらめきを積み上げる。<br>検索・図鑑・クイズ・木の成長が、ことばの冒険をひとつにつなぐ。</p>
 
             <h2>主な機能</h2>
             <ul>

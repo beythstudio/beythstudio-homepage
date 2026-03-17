@@ -102,12 +102,6 @@
             animation: pulse-slow 4s ease-in-out infinite;
         }
 
-        .product-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 3rem;
-        }
-
         .review-badge-disabled {
             cursor: not-allowed;
             opacity: 0.45;
@@ -115,46 +109,20 @@
             filter: grayscale(1) saturate(0) brightness(0.85);
         }
 
-        .rhyme-tree-badge {
+        .product-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .rhyme-tree-icon {
+            display: block;
             width: 8rem;
             height: 8rem;
+            object-fit: cover;
             border-radius: 1.75rem;
-            position: relative;
-            background:
-                radial-gradient(circle at 50% 30%, rgba(187, 247, 208, 0.18), transparent 34%),
-                radial-gradient(circle at 50% 88%, rgba(245, 158, 11, 0.14), transparent 24%),
-                linear-gradient(180deg, rgba(11, 18, 32, 0.96), rgba(9, 12, 20, 0.92));
-            border: 1px solid rgba(187, 247, 208, 0.14);
-            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-
-        .rhyme-tree-badge::before {
-            content: "";
-            position: absolute;
-            left: 50%;
-            bottom: 1.45rem;
-            width: 0.95rem;
-            height: 2.4rem;
-            transform: translateX(-50%);
-            border-radius: 999px;
-            background: linear-gradient(180deg, #8b5a2b, #4b2e16);
-            box-shadow: 0 0 20px rgba(139, 92, 42, 0.2);
-        }
-
-        .rhyme-tree-badge::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 1.2rem;
-            width: 4.5rem;
-            height: 4.5rem;
-            transform: translateX(-50%);
-            border-radius: 999px 999px 1.4rem 1.4rem;
-            background:
-                radial-gradient(circle at 32% 35%, rgba(255, 255, 255, 0.16), transparent 20%),
-                radial-gradient(circle at 68% 38%, rgba(255, 255, 255, 0.12), transparent 18%),
-                radial-gradient(circle at 50% 55%, rgba(34, 197, 94, 0.95), rgba(20, 83, 45, 0.96));
-            box-shadow: 0 0 28px rgba(74, 222, 128, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
         }
 
         .product-card-link {
@@ -332,7 +300,8 @@
                             class="glass-panel p-12 rounded-sm flex flex-col justify-center items-center text-center product-card-content">
 
                             <div class="animate-float mb-6 opacity-0 reveal-item select-none">
-                                <div class="rhyme-tree-badge" aria-hidden="true"></div>
+                                <img src="assets/rhyme-tree-icon-1024.png" alt="ライムの木 App Icon" draggable="false"
+                                    class="rhyme-tree-icon ring-1 ring-white/10 transition-transform duration-500 hover:scale-105 hover:shadow-2xl hover:ring-white/30">
                             </div>
 
                             <div class="opacity-0 reveal-item">
@@ -343,14 +312,14 @@
 
                             <p
                                 class="text-slate-400 font-sans leading-relaxed text-sm max-w-md mx-auto opacity-0 reveal-item">
-                                韻を記録し、集め、育てていく語彙コレクション。<br>
-                                検索、図鑑、クイズ、木の成長演出をひとつにつないだモバイルアプリ。
+                                韻を集め、育て、ひらめきを積み上げる。<br>
+                                検索・図鑑・クイズ・木の成長が、ことばの冒険をひとつにつなぐ。
                             </p>
 
                             <div class="mt-8 flex flex-col items-center gap-4 opacity-0 reveal-item">
                                 <a href="rhyme-tree/index.html"
                                     class="product-card-link inline-flex items-center gap-2 px-5 py-2.5 border border-emerald-200/20 rounded-full bg-emerald-100/5 hover:bg-emerald-100/10 hover:border-emerald-200/40 text-sm font-eng tracking-[0.2em]">
-                                    OPEN OVERVIEW
+                                    詳しく見る
                                 </a>
 
                                 <div class="flex flex-wrap gap-4 items-center justify-center">
