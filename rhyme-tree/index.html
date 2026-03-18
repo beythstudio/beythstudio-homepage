@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&amp;family=Outfit:wght@200;300;400;500;600&amp;family=Zen+Kaku+Gothic+New:wght@300;400;500;700&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Outfit:wght@200;300;400;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap"
         rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -21,260 +21,143 @@
                         eng: ['"Outfit"', 'sans-serif'],
                         serif: ['"Cormorant Garamond"', 'serif'],
                     },
+                    colors: {
+                        'deep-space': '#050511',
+                    }
                 }
             }
         }
     </script>
     <style>
-        :root {
-            --bg: #050711;
-            --surface: rgba(8, 14, 28, 0.76);
-            --surface-soft: rgba(255, 255, 255, 0.04);
-            --border: rgba(255, 255, 255, 0.12);
-            --border-soft: rgba(255, 255, 255, 0.08);
-            --text: #f8fafc;
-            --muted: #cbd5e1;
-            --subtle: #94a3b8;
-            --accent: #83e0c5;
-        }
-
         body {
-            margin: 0;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top, rgba(131, 224, 197, 0.12), transparent 28%),
-                radial-gradient(circle at 85% 15%, rgba(187, 247, 208, 0.1), transparent 24%),
-                linear-gradient(180deg, #03050c 0%, #050711 40%, #08101b 100%);
+            background-color: #050511;
+            color: #e2e8f0;
+            overflow-x: hidden;
         }
 
-        .panel {
-            background: linear-gradient(180deg, rgba(10, 17, 31, 0.84), rgba(6, 10, 20, 0.8));
-            border: 1px solid var(--border);
-            border-radius: 2rem;
-            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28);
-            backdrop-filter: blur(18px);
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .panel-soft {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
-            border: 1px solid var(--border-soft);
-            border-radius: 1.4rem;
-            backdrop-filter: blur(14px);
+        .content p,
+        .content li {
+            color: #94a3b8;
+            line-height: 1.8;
         }
 
-        .hero-icon {
-            width: 7rem;
-            height: 7rem;
-            object-fit: cover;
-            border-radius: 1.7rem;
-            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+        .content h2 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: white;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
         }
 
-        .section-label {
-            font-family: "Outfit", sans-serif;
-            letter-spacing: 0.24em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.56);
-            font-size: 0.74rem;
-        }
-
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.38rem 0.72rem;
-            border-radius: 999px;
-            border: 1px solid rgba(131, 224, 197, 0.22);
-            background: rgba(131, 224, 197, 0.08);
-            color: var(--accent);
-            font-family: "Outfit", sans-serif;
-            font-size: 0.72rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-        }
-
-        .status-pill::before {
-            content: "";
-            width: 0.4rem;
-            height: 0.4rem;
-            border-radius: 999px;
-            background: currentColor;
-            box-shadow: 0 0 14px currentColor;
+        .content ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
         }
 
         .store-badge-disabled {
             cursor: not-allowed;
-            opacity: 0.4;
+            opacity: 0.45;
             pointer-events: none;
-            filter: grayscale(1) saturate(0) brightness(0.88);
+            filter: grayscale(1) saturate(0) brightness(0.85);
         }
 
-        .link-pill {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 3rem;
-            padding: 0 1.15rem;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.04);
-            color: rgba(255, 255, 255, 0.72);
-            font-family: "Outfit", sans-serif;
-            letter-spacing: 0.14em;
-            transition: transform 0.3s ease, border-color 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+        .hero-icon {
+            display: block;
+            width: 8rem;
+            height: 8rem;
+            object-fit: cover;
+            border-radius: 1.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
         }
 
-        .link-pill:hover,
-        .link-pill:focus-visible {
-            transform: translateY(-2px);
-            color: white;
-            border-color: rgba(255, 255, 255, 0.28);
-            background: rgba(255, 255, 255, 0.08);
-            outline: none;
-        }
-
-        .link-pill.primary {
-            color: #06111c;
-            background: linear-gradient(135deg, #dcfff3 0%, #7ce0bf 100%);
-            border-color: rgba(131, 224, 197, 0.2);
-            box-shadow: 0 18px 34px rgba(124, 224, 191, 0.2);
-        }
-
-        .link-pill.primary:hover,
-        .link-pill.primary:focus-visible {
-            background: linear-gradient(135deg, #eafff7 0%, #8de9ca 100%);
-        }
-
-        .content-copy p,
-        .content-copy li {
-            color: var(--muted);
+        .lead-copy {
+            color: #dbeafe;
             line-height: 1.9;
-        }
-
-        .content-copy ul {
-            margin: 0;
-            padding-left: 1.2rem;
+            text-align: center;
+            max-width: 34rem;
+            margin: 0 auto;
         }
     </style>
 </head>
 
 <body class="antialiased">
-    <header class="sticky top-0 z-50 px-4 pt-4 md:px-6">
-        <div class="mx-auto max-w-6xl">
-            <div class="panel-soft flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
-                <a href="../index.html" class="font-eng text-sm tracking-[0.24em] text-white transition hover:opacity-80">
-                    BEYTH STUDIO
-                </a>
-                <a href="../index.html" class="text-xs font-eng tracking-[0.2em] text-slate-300 transition hover:text-white">
-                    BACK TO TOP
-                </a>
-            </div>
-        </div>
+
+    <header
+        class="w-full p-6 flex justify-between items-center border-b border-white/5 bg-slate-900/50 backdrop-blur-md fixed top-0 z-50">
+        <a href="../index.html"
+            class="text-xl font-eng font-light tracking-[0.2em] text-white hover:opacity-80 transition">
+            BEYTH STUDIO
+        </a>
+        <a href="../index.html" class="text-xs font-eng tracking-widest text-slate-400 hover:text-white transition">
+            BACK TO TOP
+        </a>
     </header>
 
-    <main class="px-4 pt-8 pb-14 md:px-6 md:pt-12 md:pb-20">
-        <div class="mx-auto max-w-6xl">
-            <section class="panel grid gap-8 px-6 py-8 md:grid-cols-[0.95fr_1.05fr] md:px-10 md:py-10">
-                <div class="space-y-5">
-                    <span class="status-pill">In review</span>
-                    <div class="flex items-center gap-4">
-                        <img src="../assets/rhyme-tree-icon-1024.png" alt="ライムの木 App Icon"
-                            class="hero-icon ring-1 ring-white/10">
-                        <div>
-                            <p class="section-label mb-2">App overview</p>
-                            <h1 class="font-serif text-4xl text-white md:text-5xl">ライムの木</h1>
-                        </div>
-                    </div>
-                    <p class="text-base leading-8 text-slate-200 md:text-lg">
-                        韻を集め、育て、ひらめきを積み上げる。検索、図鑑、クイズ、木の成長が、ことばの冒険をひとつにつなぐアプリです。
-                    </p>
-                </div>
+    <main class="pt-32 pb-20 px-6 max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+            <img src="../assets/rhyme-tree-icon-1024.png" alt="ライムの木 App Icon"
+                class="hero-icon mx-auto mb-6 ring-1 ring-white/10">
+            <p class="text-sm font-eng tracking-widest text-slate-500 mb-2">ライムの木</p>
+            <h1 class="text-3xl md:text-4xl font-eng tracking-widest">APP OVERVIEW</h1>
+        </div>
 
-                <div class="grid gap-4">
-                    <div class="panel-soft p-5 md:p-6">
-                        <p class="section-label mb-3">何ができるか</p>
-                        <div class="grid gap-3 text-sm leading-7 text-slate-300">
-                            <p>思いついた語句や読み仮名、母音パターンを集めて、自分だけの韻の図鑑を育てられます。</p>
-                            <p>クイズや木の成長演出で、ことば遊びを続けたくなる流れまで含めて設計しています。</p>
-                        </div>
-                    </div>
-                    <div class="grid gap-3 sm:grid-cols-2">
-                        <div class="panel-soft p-5">
-                            <p class="section-label mb-2">Account</p>
-                            <p class="text-sm leading-7 text-slate-300">Apple / Google 連携は任意。連携時はクラウドバックアップと復元に対応します。</p>
-                        </div>
-                        <div class="panel-soft p-5">
-                            <p class="section-label mb-2">Growth loop</p>
-                            <p class="text-sm leading-7 text-slate-300">ログインボーナス、広告ボーナス、容量追加で、集める楽しさを積み上げます。</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <div class="glass-card rounded-3xl p-8 md:p-12 content">
+            <p class="text-sm text-slate-500 mb-8">最終更新日：2026-03-17</p>
 
-            <section class="mt-6 grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
-                <div class="panel p-6 md:p-8">
-                    <p class="section-label mb-4">Main features</p>
-                    <div class="content-copy">
-                        <ul class="grid gap-3 text-sm md:text-base">
-                            <li>語句、読み仮名、母音パターンの登録、検索、コレクション管理</li>
-                            <li>クイズと木の成長演出による学習と継続支援</li>
-                            <li>Apple / Google アカウント連携とクラウドバックアップ、復元</li>
-                            <li>ページ容量追加、ログインボーナス、動画広告ボーナス</li>
-                        </ul>
-                    </div>
-                </div>
+            <p class="lead-copy">韻を集め、育て、ひらめきを積み上げる。<br>検索・図鑑・クイズ・木の成長が、ことばの冒険をひとつにつなぐ。</p>
 
-                <div class="panel p-6 md:p-8">
-                    <p class="section-label mb-4">Store status</p>
-                    <div class="space-y-5">
-                        <p class="text-sm leading-7 text-slate-300">
-                            ストア公開に向けた準備と審査を進めています。公開後はトップページからもすぐ辿れるようにします。
-                        </p>
-                        <div class="flex flex-wrap gap-3">
-                            <button type="button" disabled aria-disabled="true" class="link-pill store-badge-disabled">
-                                App Store 審査中
-                            </button>
-                            <button type="button" disabled aria-disabled="true" class="link-pill store-badge-disabled">
-                                Google Play 審査中
-                            </button>
-                        </div>
-                        <p class="text-xs font-eng tracking-[0.2em] text-slate-500">最終更新日: 2026-03-17</p>
-                    </div>
-                </div>
-            </section>
+            <h2>主な機能</h2>
+            <ul>
+                <li>語句・読み仮名・母音パターンの登録、検索、コレクション管理</li>
+                <li>クイズや成長演出による学習・継続支援</li>
+                <li>Apple / Google アカウント連携（任意）</li>
+                <li>連携時のクラウドバックアップ・復元</li>
+                <li>ページ容量追加、ログインボーナス、動画広告ボーナス</li>
+            </ul>
 
-            <section class="mt-6 panel p-6 md:p-8">
-                <div class="grid gap-6 md:grid-cols-[0.78fr_1.22fr]">
-                    <div class="space-y-3">
-                        <p class="section-label">Support</p>
-                        <h2 class="font-serif text-3xl text-white md:text-4xl">必要な情報へ、迷わず辿れるように。</h2>
-                        <p class="text-sm leading-7 text-slate-300">
-                            サポート、規約、法定表記、外部送信ポリシー、アカウント削除手順をまとめています。
-                        </p>
-                    </div>
-                    <div class="space-y-5">
-                        <a href="mailto:support@beythstudio.com" class="link-pill primary w-full sm:w-auto">
-                            SUPPORT@BEYTHSTUDIO.COM
-                        </a>
-                        <div class="flex flex-wrap gap-3 text-xs font-eng tracking-[0.16em] text-slate-400">
-                            <a href="privacy.html" class="link-pill">Privacy</a>
-                            <a href="terms.html" class="link-pill">Terms</a>
-                            <a href="tokusho.html" class="link-pill">Tokusho</a>
-                            <a href="external-data-policy.html" class="link-pill">External Data Policy</a>
-                            <a href="support.html" class="link-pill">Support</a>
-                            <a href="https://rhyme-tree-prod.web.app/delete-account.html" class="link-pill">
-                                Delete Account
-                            </a>
-                        </div>
-                    </div>
+            <h2>ストア公開状況</h2>
+            <div class="mt-6 flex flex-col items-center gap-4">
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <button type="button" disabled aria-disabled="true" class="store-badge-disabled">
+                        <img src="../appstore.svg" alt="Download on the App Store" class="h-[40px] w-auto">
+                    </button>
+                    <button type="button" disabled aria-disabled="true" class="store-badge-disabled">
+                        <img src="../googleplay.svg" alt="Get it on Google Play" class="h-[40px] w-auto">
+                    </button>
                 </div>
-            </section>
+                <p class="text-sm font-eng tracking-[0.2em] text-slate-500">審査中</p>
+            </div>
+
+            <h2>お問い合わせ</h2>
+            <p>support@beythstudio.com</p>
+
+            <h2>関連リンク</h2>
+            <ul>
+                <li><a href="privacy.html" class="text-blue-300 hover:text-blue-200 transition">プライバシーポリシー</a></li>
+                <li><a href="terms.html" class="text-blue-300 hover:text-blue-200 transition">利用規約</a></li>
+                <li><a href="tokusho.html" class="text-blue-300 hover:text-blue-200 transition">特定商取引法に基づく表記</a></li>
+                <li><a href="external-data-policy.html"
+                        class="text-blue-300 hover:text-blue-200 transition">利用者情報の外部送信ポリシー</a></li>
+                <li><a href="support.html" class="text-blue-300 hover:text-blue-200 transition">サポート</a></li>
+                <li><a href="https://rhyme-tree-prod.web.app/delete-account.html"
+                        class="text-blue-300 hover:text-blue-200 transition">アカウント削除手順</a></li>
+            </ul>
         </div>
     </main>
 
-    <footer class="px-4 pb-10 text-center text-xs font-eng tracking-[0.18em] text-slate-500 md:px-6">
+    <footer class="py-10 text-center text-xs text-slate-600 border-t border-white/5 font-eng">
         <p>&copy; 2026 BEYTH STUDIO. All Rights Reserved.</p>
     </footer>
+
 </body>
 
 </html>

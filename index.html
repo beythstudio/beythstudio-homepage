@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BEYTH STUDIO</title>
-    <meta name="description" content="ふたりの時間や、ことばの遊びを豊かにするアプリをつくるスタジオ。Tonight? と ライムの木 を届ける BEYTH STUDIO の公式サイト。">
     <link rel="icon" type="image/x-icon" href="/favicon.ico?v=1">
     <link rel="icon" type="image/png" sizes="48x48" href="/assets/beyth-favicon-48.png?v=1">
     <link rel="icon" type="image/png" sizes="512x512" href="/assets/beyth-favicon-512.png?v=1">
@@ -13,12 +12,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&amp;family=Outfit:wght@200;300;400;500;600&amp;family=Zen+Kaku+Gothic+New:wght@300;400;500;700&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Outfit:wght@100;200;300;400;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap"
         rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <!-- Post Processing -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -28,306 +36,109 @@
                         eng: ['"Outfit"', 'sans-serif'],
                         serif: ['"Cormorant Garamond"', 'serif'],
                     },
+                    colors: {
+                        'void': '#000000',
+                    }
                 }
             }
         }
     </script>
     <style>
-        :root {
-            --bg: #05070d;
-            --surface: rgba(8, 13, 25, 0.72);
-            --surface-strong: rgba(10, 17, 31, 0.9);
-            --border: rgba(255, 255, 255, 0.12);
-            --border-soft: rgba(255, 255, 255, 0.08);
-            --text: #f8fafc;
-            --muted: #c7d2fe;
-            --subtle: #94a3b8;
-            --gold: #f6d38f;
-            --emerald: #83e0c5;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
-            margin: 0;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top, rgba(105, 123, 255, 0.16), transparent 28%),
-                radial-gradient(circle at 20% 20%, rgba(255, 214, 153, 0.14), transparent 24%),
-                linear-gradient(180deg, #02040a 0%, #05070d 35%, #070c16 100%);
+            background-color: #000000;
+            color: #ffffff;
             overflow-x: hidden;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 1;
-            background:
-                linear-gradient(180deg, rgba(2, 4, 10, 0.24), rgba(2, 4, 10, 0.72)),
-                radial-gradient(circle at center, transparent 0%, rgba(5, 7, 13, 0.2) 45%, rgba(5, 7, 13, 0.72) 100%);
-        }
-
-        a {
-            color: inherit;
+            margin: 0;
         }
 
         canvas {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
-            opacity: 0.88;
+            z-index: -1;
         }
 
-        .site-shell {
-            position: relative;
-            z-index: 2;
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 0.9rem;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.04);
-            color: rgba(255, 255, 255, 0.72);
-            font-family: "Outfit", sans-serif;
-            font-size: 0.72rem;
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
-        .eyebrow::before {
-            content: "";
-            width: 0.45rem;
-            height: 0.45rem;
-            border-radius: 999px;
-            background: linear-gradient(135deg, #fff5cf 0%, #d6a85f 100%);
-            box-shadow: 0 0 18px rgba(245, 205, 112, 0.7);
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
-        .panel {
-            background: linear-gradient(180deg, rgba(14, 21, 35, 0.76), rgba(6, 10, 20, 0.74));
-            border: 1px solid var(--border);
-            border-radius: 2rem;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.32);
-            backdrop-filter: blur(18px);
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
         }
 
-        .panel-soft {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
-            border: 1px solid var(--border-soft);
-            border-radius: 1.5rem;
-            backdrop-filter: blur(14px);
+        @keyframes pulse-slow {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
         }
 
-        .hero-panel {
-            position: relative;
-            overflow: hidden;
+        .animate-pulse-slow {
+            animation: pulse-slow 4s ease-in-out infinite;
         }
 
-        .hero-panel::after {
-            content: "";
-            position: absolute;
-            inset: auto -20% -35% auto;
-            width: 20rem;
-            height: 20rem;
-            border-radius: 999px;
-            background: radial-gradient(circle, rgba(246, 211, 143, 0.18), transparent 70%);
-            pointer-events: none;
-        }
-
-        .section-label {
-            font-family: "Outfit", sans-serif;
-            letter-spacing: 0.24em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.55);
-            font-size: 0.74rem;
-        }
-
-        .headline-balance {
-            text-wrap: balance;
-        }
-
-        .product-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .product-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 55%);
-            opacity: 0.55;
-            pointer-events: none;
-        }
-
-        .product-card > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .product-icon {
-            width: 5.5rem;
-            height: 5.5rem;
-            border-radius: 1.5rem;
-            object-fit: cover;
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.38rem 0.7rem;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.05);
-            font-family: "Outfit", sans-serif;
-            font-size: 0.72rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.72);
-        }
-
-        .status-pill::before {
-            content: "";
-            width: 0.4rem;
-            height: 0.4rem;
-            border-radius: 999px;
-            background: currentColor;
-            box-shadow: 0 0 16px currentColor;
-        }
-
-        .status-live {
-            color: var(--gold);
-        }
-
-        .status-review {
-            color: var(--emerald);
-        }
-
-        .primary-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.65rem;
-            min-height: 3.25rem;
-            padding: 0 1.3rem;
-            border-radius: 999px;
-            font-family: "Outfit", sans-serif;
-            letter-spacing: 0.14em;
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            transition: transform 0.35s ease, border-color 0.35s ease, background-color 0.35s ease, color 0.35s ease;
-        }
-
-        .primary-link:hover,
-        .primary-link:focus-visible {
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.32);
-            outline: none;
-        }
-
-        .primary-link.gold {
-            color: #07101b;
-            background: linear-gradient(135deg, #fff4d6 0%, #e6ba6b 100%);
-            box-shadow: 0 18px 35px rgba(230, 186, 107, 0.22);
-        }
-
-        .primary-link.gold:hover,
-        .primary-link.gold:focus-visible {
-            background: linear-gradient(135deg, #fff7e0 0%, #f0c77a 100%);
-        }
-
-        .primary-link.ghost {
-            color: white;
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .primary-link.ghost:hover,
-        .primary-link.ghost:focus-visible {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .support-link {
-            color: rgba(255, 255, 255, 0.68);
-            border-color: rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .support-link:hover,
-        .support-link:focus-visible {
-            color: white;
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .store-badge-disabled {
+        .review-badge-disabled {
             cursor: not-allowed;
-            opacity: 0.4;
+            opacity: 0.45;
             pointer-events: none;
-            filter: grayscale(1) saturate(0) brightness(0.88);
+            filter: grayscale(1) saturate(0) brightness(0.85);
         }
 
-        .micro-list {
-            display: grid;
-            gap: 0.85rem;
-            color: var(--muted);
+        .product-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
         }
 
-        .micro-list strong {
-            color: white;
-            font-weight: 500;
+        .rhyme-tree-icon {
+            display: block;
+            width: 8rem;
+            height: 8rem;
+            object-fit: cover;
+            border-radius: 1.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
         }
 
-        .contact-link {
-            color: rgba(255, 255, 255, 0.74);
-            transition: color 0.35s ease;
+        .product-card-link {
+            color: #cbd5e1;
+            transition: color 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
         }
 
-        .contact-link:hover,
-        .contact-link:focus-visible {
-            color: white;
-            outline: none;
-        }
-
-        .mobile-dock {
-            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.6rem);
-        }
-
-        @media (max-width: 767px) {
-            body::before {
-                background:
-                    linear-gradient(180deg, rgba(2, 4, 10, 0.36), rgba(2, 4, 10, 0.82)),
-                    radial-gradient(circle at center, transparent 0%, rgba(5, 7, 13, 0.35) 50%, rgba(5, 7, 13, 0.8) 100%);
-            }
-
-            .hero-panel::after {
-                width: 14rem;
-                height: 14rem;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            html {
-                scroll-behavior: auto;
-            }
-
-            .primary-link {
-                transition: none;
-            }
+        .product-card-link:hover {
+            color: #ffffff;
         }
     </style>
-    <meta name="google-site-verification" content="j7tbbjF2nMdNm3nH-FnFJfHTV13XMTFcjdo8QKFCyXQ">
-    <meta property="og:title" content="BEYTH STUDIO | ふたりの時間と、ことばの遊びを豊かにするアプリをつくる。">
-    <meta property="og:description" content="Tonight? と ライムの木 を届ける BEYTH STUDIO の公式サイト。ふたりの時間や、ことばの遊びを豊かにするアプリをつくるスタジオです。">
+    <meta name="google-site-verification" content="j7tbbjF2nMdNm3nH-FnFJfHTV13XMTFcjdo8QKFCyXQ" />
+
+    <!-- OGP -->
+    <meta property="og:title" content="BEYTH STUDIO | BEYOND THE HEAVEN">
+    <meta property="og:description" content="あなたの航路を、より良いものに。BEYTH STUDIOは、人生という航路をより良い方向へ導くためのプロダクトを作るスタジオです。">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://beythstudio.com/">
     <meta property="og:image" content="https://beythstudio.com/assets/logo_icon.png?v=2">
@@ -335,366 +146,652 @@
 </head>
 
 <body class="antialiased">
-    <div id="canvas-container" aria-hidden="true"></div>
 
-    <div class="site-shell">
-        <header class="fixed inset-x-0 top-0 z-50">
-            <div class="mx-auto max-w-7xl px-4 pt-4 md:px-6">
-                <div class="panel-soft flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
-                    <a href="#top" class="font-eng text-sm tracking-[0.28em] text-white transition hover:opacity-80">
-                        BEYTH STUDIO
-                    </a>
-                    <nav class="hidden md:flex items-center gap-8 text-xs font-eng tracking-[0.24em] text-slate-300">
-                        <a href="#products" class="transition hover:text-white">PRODUCTS</a>
-                        <a href="#philosophy" class="transition hover:text-white">PHILOSOPHY</a>
-                        <a href="#contact" class="transition hover:text-white">CONTACT</a>
-                    </nav>
-                    <a href="mailto:hello@beythstudio.com"
-                        class="hidden md:inline-flex text-xs font-eng tracking-[0.2em] text-slate-300 transition hover:text-white">
-                        HELLO
-                    </a>
-                </div>
+    <div id="canvas-container"></div>
+
+    <!-- Loading Screen -->
+    <div id="loader"
+        class="fixed inset-0 z-[100] bg-black flex items-center justify-center transition-opacity duration-1000 pointer-events-none">
+        <div class="text-center">
+            <div class="font-eng text-xs tracking-[0.5em] text-slate-500 mb-4">BEYOND TH</div>
+            <div class="w-32 h-[1px] bg-slate-800 mx-auto overflow-hidden">
+                <div class="w-full h-full bg-white animate-[loading_1.5s_ease-in-out_infinite] origin-left"></div>
             </div>
-        </header>
-
-        <main id="top">
-            <section class="relative px-4 pt-28 pb-12 md:px-6 md:pt-36 md:pb-20">
-                <div class="mx-auto max-w-7xl">
-                    <div class="hero-panel panel mx-auto grid max-w-6xl gap-10 px-6 py-10 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] md:px-10 md:py-12">
-                        <div class="flex flex-col items-start justify-center gap-6">
-                            <span class="eyebrow hero-copy">Beyth Studio</span>
-                            <div class="space-y-5">
-                                <p class="section-label hero-copy">Apps for intimacy and playful language</p>
-                                <h1 class="headline-balance font-sans text-4xl font-medium leading-tight text-white hero-copy md:text-6xl md:leading-[1.1]">
-                                    ふたりの時間や、ことばの遊びを<br class="hidden md:block">
-                                    豊かにするアプリをつくる。
-                                </h1>
-                                <p class="headline-balance max-w-2xl text-base leading-8 text-slate-200 hero-copy md:text-lg">
-                                    BEYTH STUDIO は、誰かとの距離がやわらぐ瞬間や、ひらめきが育つ時間を支えるアプリを届けるスタジオです。
-                                    Tonight? と ライムの木 を通して、日常の会話と創造を少しだけ愛おしくします。
-                                </p>
-                            </div>
-                            <div class="flex flex-col gap-3 hero-copy sm:flex-row">
-                                <a href="#products" class="primary-link gold">プロダクトを見る</a>
-                                <a href="https://apps.apple.com/app/id6754710129" target="_blank" rel="noopener noreferrer"
-                                    class="primary-link ghost">Tonight? を見る</a>
-                            </div>
-                        </div>
-                        <div class="grid gap-4 self-end hero-copy">
-                            <div class="panel-soft p-5 md:p-6">
-                                <p class="section-label mb-3">Studio snapshot</p>
-                                <div class="micro-list text-sm leading-7">
-                                    <p><strong>Tonight?</strong> ふたりの時間をやさしく始めるコミュニケーションアプリ。</p>
-                                    <p><strong>ライムの木</strong> 韻を集め、育て、ひらめきを積み上げることばのアプリ。</p>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="panel-soft p-4">
-                                    <p class="section-label mb-2">Now live</p>
-                                    <p class="font-serif text-2xl text-white">Tonight?</p>
-                                    <p class="mt-2 text-sm leading-6 text-slate-300">App Store / Google Play で公開中</p>
-                                </div>
-                                <div class="panel-soft p-4">
-                                    <p class="section-label mb-2">Coming next</p>
-                                    <p class="font-serif text-2xl text-white">ライムの木</p>
-                                    <p class="mt-2 text-sm leading-6 text-slate-300">詳細ページと公開準備を進行中</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="products" class="relative px-4 py-8 md:px-6 md:py-14">
-                <div class="mx-auto max-w-7xl">
-                    <div class="mx-auto mb-10 max-w-3xl text-center reveal-section">
-                        <p class="section-label mb-4">Products</p>
-                        <h2 class="headline-balance font-sans text-3xl font-medium text-white md:text-5xl">
-                            いま届けているものと、次に届けるもの。
-                        </h2>
-                        <p class="mt-4 text-sm leading-7 text-slate-300 md:text-base">
-                            どちらも、使った直後に「少し会話したくなる」「もう少し遊びたくなる」感覚まで含めて設計しています。
-                        </p>
-                    </div>
-
-                    <div class="grid gap-6 xl:grid-cols-2">
-                        <article class="product-card panel p-6 reveal-section md:p-8">
-                            <div class="flex flex-col gap-6">
-                                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                                    <div class="flex items-center gap-4">
-                                        <img src="icon.png" alt="Tonight? App Icon" class="product-icon ring-1 ring-white/10">
-                                        <div>
-                                            <span class="status-pill status-live">Available now</span>
-                                            <h3 class="mt-4 font-serif text-4xl text-white">Tonight?</h3>
-                                            <p class="mt-3 max-w-xl text-sm leading-7 text-slate-300">
-                                                「今夜、どうする？」をもっと自然に。言葉にしきれない気分や距離感を、ふたりの会話へそっと変えるアプリです。
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                                    <div class="flex flex-wrap gap-3">
-                                        <a href="https://apps.apple.com/app/id6754710129" target="_blank" rel="noopener noreferrer"
-                                            class="primary-link gold">App Store</a>
-                                        <a href="https://play.google.com/store/apps/details?id=app.tonight.app" target="_blank"
-                                            rel="noopener noreferrer" class="primary-link ghost">Google Play</a>
-                                    </div>
-                                    <a href="https://x.com/_tonight_app" target="_blank" rel="noopener noreferrer"
-                                        class="primary-link ghost support-link">X</a>
-                                </div>
-
-                                <div class="flex flex-wrap gap-3 text-xs font-eng tracking-[0.18em] text-slate-400">
-                                    <a href="tonight/privacy.html"
-                                        class="primary-link support-link min-h-0 px-4 py-2 text-[0.68rem]">Privacy</a>
-                                    <a href="tonight/terms.html"
-                                        class="primary-link support-link min-h-0 px-4 py-2 text-[0.68rem]">Terms</a>
-                                    <a href="tonight/child-safety.html"
-                                        class="primary-link support-link min-h-0 px-4 py-2 text-[0.68rem]">Child Safety</a>
-                                </div>
-                            </div>
-                        </article>
-
-                        <article class="product-card panel p-6 reveal-section md:p-8">
-                            <div class="flex flex-col gap-6">
-                                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                                    <div class="flex items-center gap-4">
-                                        <img src="assets/rhyme-tree-icon-1024.png" alt="ライムの木 App Icon"
-                                            class="product-icon ring-1 ring-emerald-100/10">
-                                        <div>
-                                            <span class="status-pill status-review">In review</span>
-                                            <h3 class="mt-4 font-serif text-4xl text-white">ライムの木</h3>
-                                            <p class="mt-3 max-w-xl text-sm leading-7 text-slate-300">
-                                                韻を集め、育て、ひらめきを積み上げる。検索、図鑑、クイズ、木の成長がひとつながりになった、ことばの冒険アプリです。
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                                    <div class="flex flex-wrap gap-3">
-                                        <a href="rhyme-tree/index.html" class="primary-link gold">詳しく見る</a>
-                                        <button type="button" disabled aria-disabled="true"
-                                            class="primary-link ghost store-badge-disabled">App Store 審査中</button>
-                                        <button type="button" disabled aria-disabled="true"
-                                            class="primary-link ghost store-badge-disabled">Google Play 審査中</button>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-wrap gap-3 text-xs font-eng tracking-[0.18em] text-slate-400">
-                                    <a href="rhyme-tree/privacy.html"
-                                        class="primary-link support-link min-h-0 px-4 py-2 text-[0.68rem]">Privacy</a>
-                                    <a href="rhyme-tree/terms.html"
-                                        class="primary-link support-link min-h-0 px-4 py-2 text-[0.68rem]">Terms</a>
-                                    <a href="rhyme-tree/tokusho.html"
-                                        class="primary-link support-link min-h-0 px-4 py-2 text-[0.68rem]">Tokusho</a>
-                                    <a href="rhyme-tree/support.html"
-                                        class="primary-link support-link min-h-0 px-4 py-2 text-[0.68rem]">Support</a>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <section id="philosophy" class="relative px-4 py-10 md:px-6 md:py-16">
-                <div class="mx-auto max-w-7xl">
-                    <div class="panel mx-auto grid max-w-6xl gap-8 p-6 reveal-section md:grid-cols-[0.8fr_1.2fr] md:p-10">
-                        <div class="space-y-4">
-                            <p class="section-label">Philosophy</p>
-                            <h2 class="headline-balance font-serif text-4xl leading-tight text-white md:text-5xl">
-                                何気ない今日を、愛おしい一日に。
-                            </h2>
-                        </div>
-                        <div class="space-y-5 text-sm leading-8 text-slate-300 md:text-base">
-                            <p>
-                                朝に「おはよう」と笑い合えること。夜に同じ料理を囲んで、今日の出来事を話せること。そんな当たり前に見える時間こそ、
-                                人生をやわらかく支える大切な風景だと考えています。
-                            </p>
-                            <p>
-                                外の世界と簡単につながれる時代だからこそ、すぐそばにいる人との関係や、自分の内側で芽吹くひらめきを丁寧に育てたい。
-                                BEYTH STUDIO は、そのための小さくても効く道具をつくり続けます。
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer id="contact" class="relative px-4 pt-6 pb-28 md:px-6 md:pb-12">
-            <div class="mx-auto max-w-7xl">
-                <div class="panel-soft mx-auto max-w-6xl px-6 py-8 md:px-10 md:py-10">
-                    <div class="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-                        <div class="space-y-3">
-                            <p class="section-label">Contact</p>
-                            <h2 class="font-eng text-2xl tracking-[0.22em] text-white">BEYTH STUDIO</h2>
-                            <p class="max-w-xl text-sm leading-7 text-slate-300">
-                                お問い合わせ、掲載、プロダクトに関する相談は studio 窓口へ。各アプリの利用サポートは、それぞれの詳細ページから確認できます。
-                            </p>
-                        </div>
-                        <div class="flex flex-col items-start gap-3 text-sm md:items-end">
-                            <a href="mailto:hello@beythstudio.com" class="contact-link font-eng tracking-[0.18em]">
-                                HELLO@BEYTHSTUDIO.COM
-                            </a>
-                            <div class="flex flex-wrap gap-4 text-xs font-eng tracking-[0.18em] text-slate-400 md:justify-end">
-                                <a href="privacy.html" class="transition hover:text-white">Privacy Policy</a>
-                                <span>&copy; 2026 BEYTH STUDIO</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
-
-        <div class="mobile-dock fixed inset-x-0 bottom-0 z-50 px-4 md:hidden">
-            <nav class="panel-soft mb-3 grid grid-cols-3 gap-2 px-3 py-3 text-center text-[0.68rem] font-eng tracking-[0.24em] text-slate-300">
-                <a href="#products" class="rounded-full px-3 py-2 transition hover:bg-white/10 hover:text-white">PRODUCTS</a>
-                <a href="#philosophy" class="rounded-full px-3 py-2 transition hover:bg-white/10 hover:text-white">WHY</a>
-                <a href="#contact" class="rounded-full px-3 py-2 transition hover:bg-white/10 hover:text-white">CONTACT</a>
-            </nav>
         </div>
     </div>
 
+    <!-- UI Layer -->
+    <header
+        class="fixed w-full top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/5 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+            <a href="#"
+                class="flex items-center gap-3 text-xl font-eng font-light tracking-[0.3em] text-white opacity-0 animate-[fadeIn_1s_ease-out_1s_forwards] hover:opacity-80 transition-opacity">
+                BEYTH STUDIO
+            </a>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-12 text-xs font-eng tracking-widest text-slate-400">
+                    <li><a href="#about" class="hover:text-white transition-colors duration-500">ABOUT</a></li>
+                    <li><a href="#products" class="hover:text-white transition-colors duration-500">PRODUCTS</a></li>
+                    <li><a href="#contact" class="hover:text-white transition-colors duration-500">CONTACT</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section (Scroll Trigger) -->
+        <section
+            class="h-screen flex flex-col justify-center items-center text-center relative px-4 pointer-events-none">
+            <h1
+                class="font-eng text-white tracking-[0.5em] text-2xl md:text-4xl mb-8 opacity-0 hero-text drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
+                BEYTH STUDIO
+            </h1>
+            <!-- Removed Genesis/REWRITE DESTINY text as per user request v11.13 -->
+            <p
+                class="text-slate-200 max-w-md mx-auto leading-loose font-light text-sm opacity-0 hero-text tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                あなたの航路を、より良いものに。
+            </p>
+
+            <!-- Scroll indicator removed (v11.17) -->
+        </section>
+
+        <!-- Spacer for Scroll -->
+        <div class="h-[50vh]"></div>
+
+        <!-- About Section -->
+        <section id="about" class="min-h-screen flex items-center justify-center px-6 relative z-10">
+            <div class="max-w-6xl w-full grid md:grid-cols-2 gap-20 items-center">
+                <div class="glass-panel p-12 rounded-sm opacity-0 scroll-reveal">
+                    <h2 class="font-eng text-4xl mb-8 tracking-widest font-thin">PHILOSOPHY</h2>
+                    <p class="text-white text-xl mb-8 font-serif leading-relaxed">
+                        何気ない今日を、愛おしい一日に。
+                    </p>
+                    <p class="text-white leading-loose mb-8 font-light text-sm">
+                        朝、大切な人と「おはよう」と笑い合ったり。<br>
+                        夜、美味しい料理を囲んで談笑したり。<br>
+                        一日の終わりに、今日の出来事を静かに語り合ったり。<br><br>
+                        私たちが大切にしたいのは、そんな、誰もが持てるはずの幸せな日常です。
+                    </p>
+                    <p class="text-white leading-loose font-light text-sm">
+                        SNSで外の世界と簡単に繋がれる時代だからこそ、<br>
+                        すぐそばにある「大切な人達」との関係を、もっと深く、温かいものに。<br><br>
+                        BEYTH STUDIOは、あなたの人生という長い航路を、<br>
+                        より良い方向へそっと導けるような、そんな道具（ツール）を作っていきます。
+                    </p>
+                </div>
+                <div class="hidden md:block">
+                    <!-- 3D space reserved -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section id="products" class="min-h-screen flex items-center justify-center px-6 relative z-10">
+            <div class="max-w-7xl w-full">
+                <h2
+                    class="font-eng text-4xl md:text-6xl tracking-[0.2em] mb-24 text-center opacity-0 scroll-reveal mix-blend-overlay">
+                    PRODUCTS</h2>
+
+                <div class="max-w-3xl mx-auto product-stack">
+                    <div
+                        class="glass-panel p-12 rounded-sm group hover:bg-white/5 transition duration-700 opacity-0 scroll-reveal">
+                        <div
+                            class="glass-panel p-12 rounded-sm flex flex-col justify-center items-center text-center product-card-content">
+
+                            <!-- App Icon (Floating & Hover) -->
+                            <div class="animate-float mb-6 opacity-0 reveal-item select-none">
+                                <img src="icon.png" alt="Tonight App Icon" draggable="false"
+                                    class="w-32 h-32 rounded-3xl shadow-lg ring-1 ring-white/10 transition-transform duration-500 hover:scale-105 hover:shadow-2xl hover:ring-white/30">
+                            </div>
+
+                            <h3 class="font-serif text-3xl mb-6 text-gradient opacity-0 reveal-item">Tonight?</h3>
+
+                            <p
+                                class="text-slate-400 font-sans leading-relaxed text-sm max-w-md mx-auto opacity-0 reveal-item">
+                                「今夜、どうする？」をもっと気軽に。<br>
+                                言葉にしなくても伝わる想い。ふたりだけの時間を彩る、シンプルで新しいコミュニケーションの形。
+                            </p>
+
+                            <!-- Store Links -->
+                            <div class="mt-8 flex flex-col items-center gap-4 opacity-0 reveal-item">
+                                <div class="flex flex-wrap gap-4 items-center justify-center">
+                                    <!-- App Store (LIVE!) -->
+                                    <a href="https://apps.apple.com/app/id6754710129" target="_blank"
+                                        rel="noopener noreferrer" class="hover:opacity-80 transition-opacity">
+                                        <img src="appstore.svg" alt="Download on the App Store" class="h-[40px] w-auto">
+                                    </a>
+
+                                    <!-- Google Play (LIVE!) -->
+                                    <a href="https://play.google.com/store/apps/details?id=app.tonight.app"
+                                        target="_blank" rel="noopener noreferrer"
+                                        class="hover:opacity-80 transition-opacity">
+                                        <img src="googleplay.svg" alt="Get it on Google Play" class="h-[40px] w-auto">
+                                    </a>
+                                </div>
+
+                                <!-- X (Twitter) Link -->
+                                <a href="https://x.com/_tonight_app" target="_blank" rel="noopener noreferrer"
+                                    class="hover:opacity-80 transition-opacity flex items-center justify-center w-[40px] h-[40px] bg-white/10 rounded-lg border border-white/10 hover:bg-white/20 hover:border-white/30 backdrop-blur-sm pt-1">
+                                    <svg viewBox="0 0 24 24" class="w-5 h-5 fill-white" aria-hidden="true">
+                                        <path
+                                            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231l5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117Z">
+                                        </path>
+                                    </svg>
+                                </a>
+
+                                <!-- Legal Links -->
+                                <div
+                                    class="flex flex-wrap gap-3 items-center justify-center mt-4 text-xs font-eng tracking-wider">
+                                    <a href="tonight/privacy.html"
+                                        class="text-slate-400 hover:text-white transition px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Privacy</a>
+                                    <a href="tonight/terms.html"
+                                        class="text-slate-400 hover:text-white transition px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Terms</a>
+                                    <a href="tonight/child-safety.html"
+                                        class="text-slate-400 hover:text-white transition px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Child
+                                        Safety</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="glass-panel p-12 rounded-sm group hover:bg-emerald-50/5 transition duration-700 opacity-0 scroll-reveal">
+                        <div
+                            class="glass-panel p-12 rounded-sm flex flex-col justify-center items-center text-center product-card-content">
+
+                            <div class="animate-float mb-6 opacity-0 reveal-item select-none">
+                                <img src="assets/rhyme-tree-icon-1024.png" alt="ライムの木 App Icon" draggable="false"
+                                    class="rhyme-tree-icon ring-1 ring-white/10 transition-transform duration-500 hover:scale-105 hover:shadow-2xl hover:ring-white/30">
+                            </div>
+
+                            <div class="opacity-0 reveal-item">
+                                <div class="font-eng text-xs tracking-[0.4em] text-emerald-200/70 mb-4">IN REVIEW
+                                </div>
+                                <h3 class="font-serif text-3xl mb-6 text-white">ライムの木</h3>
+                            </div>
+
+                            <p
+                                class="text-slate-400 font-sans leading-relaxed text-sm max-w-md mx-auto opacity-0 reveal-item">
+                                韻を集め、育て、ひらめきを積み上げる。<br>
+                                検索・図鑑・クイズ・木の成長が、ことばの冒険をひとつにつなぐ。
+                            </p>
+
+                            <div class="mt-8 flex flex-col items-center gap-4 opacity-0 reveal-item">
+                                <a href="rhyme-tree/index.html"
+                                    class="product-card-link inline-flex items-center gap-2 px-5 py-2.5 border border-emerald-200/20 rounded-full bg-emerald-100/5 hover:bg-emerald-100/10 hover:border-emerald-200/40 text-sm font-eng tracking-[0.2em]">
+                                    詳しく見る
+                                </a>
+
+                                <div class="flex flex-wrap gap-4 items-center justify-center">
+                                    <button type="button" disabled aria-disabled="true" class="review-badge-disabled">
+                                        <img src="appstore.svg" alt="Download on the App Store" class="h-[40px] w-auto">
+                                    </button>
+                                    <button type="button" disabled aria-disabled="true" class="review-badge-disabled">
+                                        <img src="googleplay.svg" alt="Get it on Google Play" class="h-[40px] w-auto">
+                                    </button>
+                                </div>
+
+                                <div class="text-xs font-eng tracking-[0.35em] text-emerald-200/70">審査中</div>
+
+                                <div
+                                    class="flex flex-wrap gap-3 items-center justify-center mt-2 text-xs font-eng tracking-wider">
+                                    <a href="rhyme-tree/privacy.html"
+                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Privacy</a>
+                                    <a href="rhyme-tree/terms.html"
+                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Terms</a>
+                                    <a href="rhyme-tree/tokusho.html"
+                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Tokusho</a>
+                                    <a href="rhyme-tree/support.html"
+                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Support</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer id="contact" class="py-12 border-t border-white/5 relative z-10 bg-black/50 backdrop-blur-xl">
+            <div class="max-w-4xl mx-auto px-6 text-center">
+                <h2 class="font-eng text-2xl tracking-[0.5em] mb-8 text-white">BEYTH STUDIO
+                </h2>
+
+                <div class="flex justify-center space-x-12 mb-8">
+                    <a href="mailto:hello@beythstudio.com"
+                        class="text-sm font-eng tracking-widest text-slate-400 hover:text-white transition border-b border-transparent hover:border-white pb-1">HELLO@BEYTHSTUDIO.COM</a>
+                </div>
+
+                <div class="flex justify-center space-x-8 text-xs font-eng text-slate-300 tracking-widest">
+                    <a href="privacy.html" target="_blank" rel="noopener noreferrer"
+                        class="hover:text-white transition">PRIVACY POLICY</a>
+                    <span>&copy; 2025 BEYTH STUDIO</span>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Shaders -->
+    <script id="vertexShader" type="x-shader/x-vertex">
+        uniform float time;
+        uniform vec2 mouse;
+        attribute float size;
+        attribute vec3 customColor;
+        attribute float aLife; // Random value 0-1 for life cycle
+        varying vec3 vColor;
+        varying float vLife;
+
+        // Simple noise function
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+        float snoise(vec2 v) {
+            const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+            vec2 i  = floor(v + dot(v, C.yy) );
+            vec2 x0 = v - i + dot(i, C.xx);
+            vec2 i1;
+            i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+            vec4 x12 = x0.xyxy + C.xxzz;
+            x12.xy -= i1;
+            i = mod289(i);
+            vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+            vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+            m = m*m ;
+            m = m*m ;
+            vec3 x = 2.0 * fract(p * C.www) - 1.0;
+            vec3 h = abs(x) - 0.5;
+            vec3 ox = floor(x + 0.5);
+            vec3 a0 = x - ox;
+            m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+            vec3 g;
+            g.x  = a0.x  * x0.x  + h.x  * x0.y;
+            g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+            return 130.0 * dot(m, g);
+        }
+
+        void main() {
+            vLife = aLife;
+            vec3 pos = position;
+            
+            vColor = customColor;
+            
+            // Shift color towards white/gold when close to others (simulated by attraction)
+            vColor = mix(vColor, vec3(1.0, 0.9, 0.5), attraction);
+
+            vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
+            gl_PointSize = finalSize * ( 300.0 / -mvPosition.z );
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    </script>
+
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        uniform vec3 color;
+        uniform sampler2D pointTexture;
+        uniform float time;
+        varying vec3 vColor;
+        varying float vLife;
+
+        void main() {
+            // Soft circle shape
+            vec2 coord = gl_PointCoord - vec2(0.5);
+            float dist = length(coord);
+            if (dist > 0.5) discard;
+
+            // Heartbeat pulse in alpha
+            float pulse = 0.8 + 0.2 * sin(time * 5.0 + vLife * 50.0);
+            
+            // Soft edge glow
+            float glow = 1.0 - (dist * 2.0);
+            glow = pow(glow, 1.5);
+
+            gl_FragColor = vec4( color * vColor, glow * pulse );
+            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+        }
+    </script>
+
     <script>
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const isMobile = window.matchMedia('(max-width: 767px)').matches;
-
-        const particleCount = reduceMotion ? 90 : (isMobile ? 900 : 1600);
-        const pixelRatio = Math.min(window.devicePixelRatio || 1, isMobile ? 1.2 : 1.5);
-
+        // --- Initialization ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 2400);
-        camera.position.z = isMobile ? 520 : 460;
+        // Deep space fog
+        scene.fog = new THREE.FogExp2(0x050510, 0.0005);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true });
-        renderer.setPixelRatio(pixelRatio);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
+        camera.position.z = 1000;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ReinhardToneMapping;
         container.appendChild(renderer.domElement);
 
+        // --- Post Processing (Bloom) ---
+        const renderScene = new THREE.RenderPass(scene, camera);
+        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.1;
+        bloomPass.strength = 2.0; // Strong bloom for "creation" effect
+        bloomPass.radius = 0.5;
+
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        // --- Particles (v9.0: The Origin - Light of Destiny) ---
         const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-        const color = new THREE.Color();
+        const count = 40000; // Reduced count (v11.12)
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+        const sizes = new Float32Array(count);
+        const lifes = new Float32Array(count);
 
-        for (let index = 0; index < particleCount; index += 1) {
-            const radius = 160 + Math.random() * 980;
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos(2 * Math.random() - 1);
+        // Palette: Golden Origin (Truth & Wealth)
+        const colorPlatinum = new THREE.Color(0xe5e4e2); // Platinum (Truth)
+        const colorGold = new THREE.Color(0xffd700); // Pure Gold (Wealth/Power)
+        const colorWhiteGold = new THREE.Color(0xffec8b); // Light Goldenrod (Bridge)
+        const colorWarmLight = new THREE.Color(0xffe4b5); // Moccasin (Life)
 
-            positions[index * 3] = radius * Math.sin(phi) * Math.cos(theta);
-            positions[index * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta) * 0.8;
-            positions[index * 3 + 2] = (Math.random() - 0.5) * 1300;
+        for (let i = 0; i < count; i++) {
+            // Mystical Core Distribution (Preserved)
+            let x, y, z;
+            const r = Math.random();
 
-            const mix = Math.random();
-            if (mix < 0.45) {
-                color.setHSL(0.12, 0.75, 0.72);
-            } else if (mix < 0.8) {
-                color.setHSL(0.59, 0.5, 0.76);
+            if (r < 0.5) {
+                // Core (The Singularity)
+                const radius = Math.pow(Math.random(), 2.5) * 800;
+                const theta = Math.random() * 2 * Math.PI;
+                const phi = Math.acos(2 * Math.random() - 1);
+
+                x = radius * Math.sin(phi) * Math.cos(theta);
+                y = radius * Math.sin(phi) * Math.sin(theta) * 0.9;
+                z = radius * Math.cos(phi);
             } else {
-                color.setHSL(0.42, 0.5, 0.72);
+                // The Expansion (Souls spreading out)
+                x = (Math.random() - 0.5) * 5000;
+                y = (Math.random() - 0.5) * 4000;
+                z = (Math.random() - 0.5) * 5000;
             }
 
-            colors[index * 3] = color.r;
-            colors[index * 3 + 1] = color.g;
-            colors[index * 3 + 2] = color.b;
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+
+            // Colors: Golden Origin Mix
+            // 40% Rich Gold, 30% Platinum, 30% Warm/White
+            const mixRatio = Math.random();
+            let mixedColor;
+
+            if (mixRatio < 0.4) {
+                // Rich Gold Base
+                mixedColor = colorGold.clone().lerp(colorWhiteGold, Math.random() * 0.5);
+            } else if (mixRatio < 0.7) {
+                // Platinum/Truth Highlights
+                mixedColor = colorPlatinum.clone().lerp(colorGold, Math.random() * 0.3);
+            } else {
+                // Warm Life
+                mixedColor = colorWarmLight.clone().lerp(colorWhiteGold, Math.random());
+            }
+
+            colors[i * 3] = mixedColor.r;
+            colors[i * 3 + 1] = mixedColor.g;
+            colors[i * 3 + 2] = mixedColor.b;
+
+            sizes[i] = Math.random() * 4 + 2;
+            lifes[i] = Math.random();
         }
 
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        geometry.setAttribute('aLife', new THREE.BufferAttribute(lifes, 1));
 
-        const material = new THREE.PointsMaterial({
-            size: reduceMotion ? 2.3 : (isMobile ? 2.6 : 3.2),
-            sizeAttenuation: true,
-            transparent: true,
-            opacity: reduceMotion ? 0.45 : 0.75,
-            vertexColors: true,
+        // Custom Shader Material
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                color: { value: new THREE.Color(0xffffff) },
+                pointTexture: { value: new THREE.TextureLoader().load('https://threejs.org/examples/textures/sprites/spark1.png') },
+                time: { value: 0.0 }
+            },
+            vertexShader: `
+                uniform float time;
+                uniform vec2 mouse;
+                attribute float size;
+                attribute vec3 customColor;
+                attribute float aLife;
+                varying vec3 vColor;
+                varying float vLife;
+
+                void main() {
+                    vLife = aLife;
+                    vec3 pos = position;
+                    
+                    // v11.0: RETURN TO SOURCE (Inward Flow)
+                    // Particles start far away and slowly journey towards the center (Core).
+                    // When they reach the center, they are "absorbed" and respawn at the edge.
+                    
+                    float maxDist = 4000.0; // The outer boundary
+                    float speed = 1.5; // Just a bit slower (v11.9)
+                    
+                    // Calculate current distance based on time
+                    float dist = length(pos);
+                    vec3 dir = normalize(pos);
+                    
+                    // Move inwards: subtract time from distance
+                    // Use mod to cycle: (initial - time) % max
+                    // We add a large multiple of maxDist to ensure it stays positive before mod
+                    float linearDist = mod(dist - time * speed + maxDist * 100.0, maxDist);
+                    
+                    // v11.18: Non-linear braking to fix "Hollow Core" issue
+                    // We convert the linear progress to a power curve.
+                    // ratio goes from 1.0 (edge) down to 0.0 (center).
+                    // pow(ratio, 6.0) makes particles zip to center and stay there (extreme accumulation).
+                    
+                    float ratio = linearDist / maxDist;
+                    float currentDist = maxDist * pow(ratio, 6.0); // 6.0 power curve for extreme braking 
+                    
+                    // Apply the new distance to the position
+                    pos = dir * currentDist;
+                    
+                    // Removed Ascension (v11.3) to ensure straight path to core
+
+                    // Breathing Size
+                    float breathing = 0.5 + 0.5 * sin(time * 1.5 + aLife * 100.0);
+                    float finalSize = size * (0.7 + 0.3 * breathing);
+                    
+                    // v11.9: Maintain Core Size
+                    // Instead of shrinking, we keep them visible or slightly larger to ensure the core looks substantial.
+                    if (currentDist < 450.0) {
+                        finalSize *= 1.8; // Medium boost size near the core (v11.11)
+                    }
+
+                    // Overdraw Protection
+                    vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
+                    float distToCamera = -mvPosition.z;
+                    if (distToCamera < 50.0) {
+                        finalSize *= smoothstep(0.0, 50.0, distToCamera);
+                    }
+
+                    vColor = customColor;
+                    
+                    // Light Pulse
+                    vColor += vec3(breathing * 0.3); // Radiate light
+
+                    gl_PointSize = finalSize * ( 300.0 / -mvPosition.z );
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 color;
+                uniform sampler2D pointTexture;
+                uniform float time;
+                varying vec3 vColor;
+                varying float vLife;
+
+                void main() {
+                    // Soft, Ethereal Glow (Soul Particle)
+                    vec2 coord = gl_PointCoord - vec2(0.5);
+                    float dist = length(coord);
+                    if (dist > 0.5) discard;
+
+                    // Softer falloff for a "halo" effect
+                    float glow = 1.0 - (dist * 2.0);
+                    glow = pow(glow, 2.0); // Smooth glow
+
+                    // Inner bright core
+                    float core = 1.0 - (dist * 2.0);
+                    core = pow(core, 8.0); // Sharp bright center
+
+                    // Combine
+                    float alpha = glow * 0.8 + core * 0.5;
+                    
+                    // Gentle pulse
+                    float pulse = 0.9 + 0.1 * sin(time * 3.0 + vLife * 50.0);
+
+                    gl_FragColor = vec4( color * vColor, alpha * pulse );
+                    gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+                }
+            `,
             blending: THREE.AdditiveBlending,
-            depthWrite: false,
+            depthTest: false,
+            transparent: true
         });
 
         const particles = new THREE.Points(geometry, material);
-        particles.rotation.x = 0.4;
         scene.add(particles);
 
-        let pointerX = 0;
-        let pointerY = 0;
-        let currentX = 0;
-        let currentY = 0;
+        // --- Animation Loop ---
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
 
-        if (!reduceMotion) {
-            window.addEventListener('pointermove', (event) => {
-                pointerX = (event.clientX / window.innerWidth) * 2 - 1;
-                pointerY = (event.clientY / window.innerHeight) * 2 - 1;
-            });
-        }
+        let windowHalfX = window.innerWidth / 2;
+        let windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX) / windowHalfX;
+            mouseY = -(event.clientY - windowHalfY) / windowHalfY;
+        });
 
         const clock = new THREE.Clock();
 
-        function render() {
-            const elapsed = clock.getElapsedTime();
+        function animate() {
+            requestAnimationFrame(animate);
 
-            if (!reduceMotion) {
-                currentX += (pointerX - currentX) * 0.035;
-                currentY += (pointerY - currentY) * 0.035;
+            const time = clock.getElapsedTime();
 
-                particles.rotation.y = elapsed * 0.035;
-                particles.rotation.z = elapsed * 0.012;
-                camera.position.x += (currentX * 28 - camera.position.x) * 0.04;
-                camera.position.y += ((-currentY * 18) - camera.position.y) * 0.04;
-            } else {
-                particles.rotation.y = 0.18;
-                particles.rotation.z = 0.06;
-            }
+            material.uniforms.time.value = time;
 
+            // Smooth mouse interpolation for Camera Parallax
+            targetX += (mouseX - targetX) * 0.05;
+            targetY += (mouseY - targetY) * 0.05;
+
+            // Camera Parallax (Subtle)
+            camera.position.x += (targetX * 20 - camera.position.x) * 0.05;
+            camera.position.y += (targetY * 20 - camera.position.y) * 0.05;
+
+            // Scroll Interaction
+            const scrollY = window.scrollY;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const scrollFraction = scrollY / maxScroll;
+
+            // Fly from distance (600) into the core (200)
+            // v11.16: Closer Start (User requested to be closer than 1000, but outside 450)
+            const zPos = 600 - (scrollFraction * 400);
+            camera.position.z = zPos;
+
+            // Always look at the center
             camera.lookAt(0, 0, 0);
-            renderer.render(scene, camera);
-            requestAnimationFrame(render);
+
+            // Rotation: The Universe Slowly Turns
+            // Represents the passage of time and destiny
+            particles.rotation.y = time * 0.002;
+            particles.rotation.z = time * 0.0005;
+
+            composer.render();
         }
 
-        render();
+        animate();
 
+        // --- Resize Handler ---
         window.addEventListener('resize', () => {
-            camera.position.z = window.innerWidth < 768 ? 520 : 460;
+            windowHalfX = window.innerWidth / 2;
+            windowHalfY = window.innerHeight / 2;
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.2 : 1.5));
             renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
         });
 
+        // --- GSAP Animations ---
         gsap.registerPlugin(ScrollTrigger);
 
-        if (reduceMotion) {
-            gsap.set('.hero-copy, .reveal-section', { opacity: 1, y: 0 });
-        } else {
-            gsap.fromTo('.hero-copy',
-                { opacity: 0, y: 18 },
+        // Loader
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+
+                // Hero Text Reveal
+                gsap.to('.hero-text', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1.5,
+                    stagger: 0.2,
+                    ease: 'power3.out'
+                });
+            }, 1000);
+        });
+
+        // Scroll Reveal Elements
+        gsap.utils.toArray('.scroll-reveal').forEach(element => {
+            gsap.fromTo(element,
+                { opacity: 0, y: 50 },
                 {
                     opacity: 1,
                     y: 0,
                     duration: 1,
-                    stagger: 0.12,
-                    ease: 'power2.out'
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: element,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
                 }
             );
+        });
 
-            gsap.utils.toArray('.reveal-section').forEach((element) => {
-                gsap.fromTo(element,
-                    { opacity: 0, y: 36 },
-                    {
-                        opacity: 1,
-                        y: 0,
-                        duration: 0.9,
-                        ease: 'power2.out',
-                        scrollTrigger: {
-                            trigger: element,
-                            start: 'top 82%',
-                            once: true
-                        }
-                    }
-                );
-            });
-        }
+        // Staggered Reveal for Product Card Contents
+        gsap.fromTo(".reveal-item",
+            { opacity: 0, y: 30 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.15, // Sequential delay
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: ".product-card-content",
+                    start: "top 75%",
+                    toggleActions: 'play none none reverse'
+                }
+            }
+        );
+
+        // Keyframes for Loading
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes loading {
+                0% { transform: scaleX(0); }
+                50% { transform: scaleX(1); }
+                100% { transform: scaleX(0); transform-origin: right; }
+            }
+            @keyframes fadeIn {
+                to { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
     </script>
 </body>
 
