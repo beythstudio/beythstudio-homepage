@@ -115,6 +115,136 @@
             gap: 3rem;
         }
 
+        .product-card {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .product-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at top, rgba(255, 255, 255, 0.06), transparent 55%);
+            opacity: 0.7;
+        }
+
+        .product-card-gold::after,
+        .product-card-emerald::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: calc(100% - 6rem);
+            height: 1px;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .product-card-gold::after {
+            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.6), transparent);
+        }
+
+        .product-card-emerald::after {
+            background: linear-gradient(90deg, transparent, rgba(110, 231, 183, 0.6), transparent);
+        }
+
+        .product-card-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .product-intro {
+            color: rgba(226, 232, 240, 0.72);
+        }
+
+        .product-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            font-family: "Outfit", sans-serif;
+            font-size: 0.72rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+        }
+
+        .product-status::before {
+            content: "";
+            width: 0.45rem;
+            height: 0.45rem;
+            border-radius: 999px;
+            background: currentColor;
+            box-shadow: 0 0 16px currentColor;
+        }
+
+        .product-status-live {
+            color: rgba(250, 204, 21, 0.85);
+        }
+
+        .product-status-soon {
+            color: rgba(110, 231, 183, 0.85);
+        }
+
+        .product-main-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            transition: color 0.4s ease, border-color 0.4s ease, background-color 0.4s ease, transform 0.4s ease;
+        }
+
+        .product-main-action:hover {
+            transform: translateY(-1px);
+        }
+
+        .product-main-action-primary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .product-main-action-primary:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+
+        .product-main-action-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .product-main-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .product-store-badge {
+            padding: 0.15rem 0.35rem;
+        }
+
+        .product-sub-links a {
+            color: rgba(203, 213, 225, 0.76);
+            border-color: rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.02);
+            transition: color 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
+        }
+
+        .product-sub-links a:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
         .rhyme-tree-icon {
             display: block;
             width: 8rem;
@@ -231,12 +361,16 @@
                 <h2
                     class="font-eng text-4xl md:text-6xl tracking-[0.2em] mb-24 text-center opacity-0 scroll-reveal mix-blend-overlay">
                     PRODUCTS</h2>
+                <p
+                    class="product-intro max-w-2xl mx-auto -mt-14 mb-16 text-center text-sm md:text-base leading-loose opacity-0 scroll-reveal">
+                    ふたりの時間をやわらかくするものと、ことばのひらめきを育てるもの。
+                </p>
 
                 <div class="max-w-3xl mx-auto product-stack">
-                    <div
-                        class="glass-panel p-12 rounded-sm group hover:bg-white/5 transition duration-700 opacity-0 scroll-reveal">
-                        <div
-                            class="glass-panel p-12 rounded-sm flex flex-col justify-center items-center text-center product-card-content">
+                    <article
+                        class="product-card product-card-gold p-12 rounded-sm group hover:bg-white/5 transition duration-700 opacity-0 scroll-reveal">
+                        <div class="product-card-content">
+                            <div class="product-status product-status-live mb-6 opacity-0 reveal-item">公開中</div>
 
                             <!-- App Icon (Floating & Hover) -->
                             <div class="animate-float mb-6 opacity-0 reveal-item select-none">
@@ -257,21 +391,22 @@
                                 <div class="flex flex-wrap gap-4 items-center justify-center">
                                     <!-- App Store (LIVE!) -->
                                     <a href="https://apps.apple.com/app/id6754710129" target="_blank"
-                                        rel="noopener noreferrer" class="hover:opacity-80 transition-opacity">
+                                        rel="noopener noreferrer"
+                                        class="product-main-action product-main-action-primary product-store-badge rounded-full">
                                         <img src="appstore.svg" alt="Download on the App Store" class="h-[40px] w-auto">
                                     </a>
 
                                     <!-- Google Play (LIVE!) -->
                                     <a href="https://play.google.com/store/apps/details?id=app.tonight.app"
                                         target="_blank" rel="noopener noreferrer"
-                                        class="hover:opacity-80 transition-opacity">
+                                        class="product-main-action product-main-action-secondary product-store-badge rounded-full">
                                         <img src="googleplay.svg" alt="Get it on Google Play" class="h-[40px] w-auto">
                                     </a>
                                 </div>
 
                                 <!-- X (Twitter) Link -->
                                 <a href="https://x.com/_tonight_app" target="_blank" rel="noopener noreferrer"
-                                    class="hover:opacity-80 transition-opacity flex items-center justify-center w-[40px] h-[40px] bg-white/10 rounded-lg border border-white/10 hover:bg-white/20 hover:border-white/30 backdrop-blur-sm pt-1">
+                                    class="product-main-action product-main-action-secondary inline-flex items-center justify-center w-[40px] h-[40px] rounded-lg pt-1">
                                     <svg viewBox="0 0 24 24" class="w-5 h-5 fill-white" aria-hidden="true">
                                         <path
                                             d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231l5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117Z">
@@ -281,34 +416,30 @@
 
                                 <!-- Legal Links -->
                                 <div
-                                    class="flex flex-wrap gap-3 items-center justify-center mt-4 text-xs font-eng tracking-wider">
+                                    class="product-sub-links flex flex-wrap gap-3 items-center justify-center mt-4 text-[11px] font-eng tracking-[0.18em]">
                                     <a href="tonight/privacy.html"
-                                        class="text-slate-400 hover:text-white transition px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Privacy</a>
+                                        class="px-4 py-1.5 border rounded-full">Privacy</a>
                                     <a href="tonight/terms.html"
-                                        class="text-slate-400 hover:text-white transition px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Terms</a>
+                                        class="px-4 py-1.5 border rounded-full">Terms</a>
                                     <a href="tonight/child-safety.html"
-                                        class="text-slate-400 hover:text-white transition px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Child
+                                        class="px-4 py-1.5 border rounded-full">Child
                                         Safety</a>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </article>
 
-                    <div
-                        class="glass-panel p-12 rounded-sm group hover:bg-emerald-50/5 transition duration-700 opacity-0 scroll-reveal">
-                        <div
-                            class="glass-panel p-12 rounded-sm flex flex-col justify-center items-center text-center product-card-content">
+                    <article
+                        class="product-card product-card-emerald p-12 rounded-sm group hover:bg-emerald-50/5 transition duration-700 opacity-0 scroll-reveal">
+                        <div class="product-card-content">
+                            <div class="product-status product-status-soon mb-6 opacity-0 reveal-item">近日公開予定</div>
 
                             <div class="animate-float mb-6 opacity-0 reveal-item select-none">
                                 <img src="assets/rhyme-tree-icon-1024.png" alt="ライムの木 App Icon" draggable="false"
                                     class="rhyme-tree-icon ring-1 ring-white/10 transition-transform duration-500 hover:scale-105 hover:shadow-2xl hover:ring-white/30">
                             </div>
 
-                            <div class="opacity-0 reveal-item">
-                                <div class="font-eng text-xs tracking-[0.4em] text-emerald-200/70 mb-4">IN REVIEW
-                                </div>
-                                <h3 class="font-serif text-3xl mb-6 text-white">ライムの木</h3>
-                            </div>
+                            <h3 class="font-serif text-3xl mb-6 text-white opacity-0 reveal-item">ライムの木</h3>
 
                             <p
                                 class="text-slate-400 font-sans leading-relaxed text-sm max-w-md mx-auto opacity-0 reveal-item">
@@ -318,35 +449,35 @@
 
                             <div class="mt-8 flex flex-col items-center gap-4 opacity-0 reveal-item">
                                 <a href="rhyme-tree/index.html"
-                                    class="product-card-link inline-flex items-center gap-2 px-5 py-2.5 border border-emerald-200/20 rounded-full bg-emerald-100/5 hover:bg-emerald-100/10 hover:border-emerald-200/40 text-sm font-eng tracking-[0.2em]">
+                                    class="product-main-action product-main-action-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-eng tracking-[0.2em]">
                                     詳しく見る
                                 </a>
 
                                 <div class="flex flex-wrap gap-4 items-center justify-center">
-                                    <button type="button" disabled aria-disabled="true" class="review-badge-disabled">
+                                    <button type="button" disabled aria-disabled="true"
+                                        class="product-main-action product-main-action-secondary product-store-badge review-badge-disabled rounded-full">
                                         <img src="appstore.svg" alt="Download on the App Store" class="h-[40px] w-auto">
                                     </button>
-                                    <button type="button" disabled aria-disabled="true" class="review-badge-disabled">
+                                    <button type="button" disabled aria-disabled="true"
+                                        class="product-main-action product-main-action-secondary product-store-badge review-badge-disabled rounded-full">
                                         <img src="googleplay.svg" alt="Get it on Google Play" class="h-[40px] w-auto">
                                     </button>
                                 </div>
 
-                                <div class="text-xs font-eng tracking-[0.35em] text-emerald-200/70">審査中</div>
-
                                 <div
-                                    class="flex flex-wrap gap-3 items-center justify-center mt-2 text-xs font-eng tracking-wider">
+                                    class="product-sub-links flex flex-wrap gap-3 items-center justify-center mt-2 text-[11px] font-eng tracking-[0.18em]">
                                     <a href="rhyme-tree/privacy.html"
-                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Privacy</a>
+                                        class="px-4 py-1.5 border rounded-full">Privacy</a>
                                     <a href="rhyme-tree/terms.html"
-                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Terms</a>
+                                        class="px-4 py-1.5 border rounded-full">Terms</a>
                                     <a href="rhyme-tree/tokusho.html"
-                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Tokusho</a>
+                                        class="px-4 py-1.5 border rounded-full">Tokusho</a>
                                     <a href="rhyme-tree/support.html"
-                                        class="product-card-link px-4 py-1.5 border border-white/20 rounded-full hover:border-white/50 hover:bg-white/5">Support</a>
+                                        class="px-4 py-1.5 border rounded-full">Support</a>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </article>
                 </div>
             </div>
         </section>
@@ -762,21 +893,24 @@
         });
 
         // Staggered Reveal for Product Card Contents
-        gsap.fromTo(".reveal-item",
-            { opacity: 0, y: 30 },
-            {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                stagger: 0.15, // Sequential delay
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: ".product-card-content",
-                    start: "top 75%",
-                    toggleActions: 'play none none reverse'
+        gsap.utils.toArray('.product-card-content').forEach(card => {
+            const items = card.querySelectorAll('.reveal-item');
+            gsap.fromTo(items,
+                { opacity: 0, y: 30 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.12,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: card,
+                        start: "top 75%",
+                        toggleActions: 'play none none reverse'
+                    }
                 }
-            }
-        );
+            );
+        });
 
         // Keyframes for Loading
         const styleSheet = document.createElement("style");
