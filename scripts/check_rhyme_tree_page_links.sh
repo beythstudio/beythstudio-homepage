@@ -15,6 +15,7 @@ required_files=(
 
 required_index_links=(
   "https://apps.apple.com/jp/app/%E3%83%A9%E3%82%A4%E3%83%A0%E3%81%AE%E6%9C%A8/id6759488302?uo=4"
+  "https://play.google.com/store/apps/details?id=com.beythstudio.rhymetree"
   "privacy.html"
   "terms.html"
   "tokusho.html"

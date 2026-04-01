@@ -104,13 +104,6 @@
             animation: pulse-slow 4s ease-in-out infinite;
         }
 
-        .review-badge-disabled {
-            cursor: not-allowed;
-            opacity: 0.45;
-            pointer-events: none;
-            filter: grayscale(1) saturate(0) brightness(0.85);
-        }
-
         .product-stack {
             display: flex;
             flex-direction: column;
@@ -407,7 +400,7 @@
                     <article
                         class="product-card product-card-emerald p-12 rounded-sm group hover:bg-emerald-50/5 transition duration-700 opacity-0 scroll-reveal">
                         <div class="product-card-content">
-                            <div class="product-status product-status-live mb-6 opacity-0 reveal-item">iOS 公開中</div>
+                            <div class="product-status product-status-live mb-6 opacity-0 reveal-item">App Store / Google Play 公開中</div>
 
                             <div class="animate-float mb-6 opacity-0 reveal-item select-none">
                                 <img src="assets/rhyme-tree-icon-1024.png" alt="ライムの木 App Icon" draggable="false"
@@ -434,10 +427,11 @@
                                         class="product-main-action product-main-action-secondary product-store-badge rounded-full">
                                         <img src="appstore.svg" alt="Download on the App Store" class="h-[40px] w-auto">
                                     </a>
-                                    <button type="button" disabled aria-disabled="true"
-                                        class="product-main-action product-main-action-secondary product-store-badge review-badge-disabled rounded-full">
+                                    <a href="https://play.google.com/store/apps/details?id=com.beythstudio.rhymetree"
+                                        target="_blank" rel="noopener noreferrer"
+                                        class="product-main-action product-main-action-secondary product-store-badge rounded-full">
                                         <img src="googleplay.svg" alt="Get it on Google Play" class="h-[40px] w-auto">
-                                    </button>
+                                    </a>
                                 </div>
 
                                 <div
