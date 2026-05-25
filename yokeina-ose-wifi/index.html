@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>「余計なお世話WiFi」対策アプリ | BEYTH STUDIO</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    <link rel="canonical" href="https://beythstudio.com/yokeina-ose-wifi/">
+    <link rel="icon" type="image/png" href="../assets/yokeina-ose-wifi-icon.png">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #050511;
+            --bg-2: #090913;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --soft: #cbd5e1;
+            --blue: #93c5fd;
+            --line: rgba(255, 255, 255, 0.1);
+            --glass: rgba(255, 255, 255, 0.055);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--bg);
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 18% 14%, rgba(255, 215, 194, 0.24), transparent 34rem),
+                radial-gradient(circle at 86% 18%, rgba(37, 99, 235, 0.26), transparent 30rem),
+                linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 48%, #03030a 100%);
+            color: var(--text);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.16;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: linear-gradient(to bottom, black, transparent 86%);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        .site-header {
+            position: fixed;
+            z-index: 20;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.4rem clamp(1.1rem, 3vw, 1.6rem);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(2, 6, 23, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .brand,
+        .nav-link,
+        .eyebrow,
+        .pill,
+        .metric {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            letter-spacing: 0.18em;
+        }
+
+        .brand {
+            font-size: 1.12rem;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+        }
+
+        .nav-link {
+            color: var(--muted);
+            font-size: 0.75rem;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+        }
+
+        main {
+            padding: 8rem clamp(1.1rem, 4vw, 2rem) 5rem;
+        }
+
+        .hero {
+            width: min(100%, 72rem);
+            min-height: 78vh;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+            gap: clamp(2rem, 5vw, 3.25rem);
+            align-items: center;
+        }
+
+        .hero-icon {
+            width: 8.25rem;
+            height: 8.25rem;
+            object-fit: cover;
+            border-radius: 1.8rem;
+            border: 1px solid var(--line);
+            box-shadow: 0 22px 70px rgba(0, 0, 0, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        .eyebrow {
+            color: #bfdbfe;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin: 0 0 0.8rem;
+        }
+
+        h1 {
+            margin: 0;
+            color: #fff;
+            font-size: clamp(2.35rem, 6vw, 4rem);
+            line-height: 1.12;
+            letter-spacing: 0;
+        }
+
+        .blue {
+            color: var(--blue);
+        }
+
+        .lead {
+            width: min(100%, 36rem);
+            color: var(--soft);
+            line-height: 1.9;
+            margin: 1.45rem 0 0;
+        }
+
+        .pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2.75rem;
+            padding: 0.75rem 1.15rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 0.73rem;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .pill:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.32);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 100%);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid var(--line);
+            border-radius: 2rem;
+            padding: clamp(1rem, 3vw, 1.5rem);
+        }
+
+        .feature-image {
+            width: 100%;
+            border-radius: 1.3rem;
+            border: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .feature-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.62fr);
+            gap: 1.25rem;
+            align-items: center;
+            margin-top: 1.25rem;
+        }
+
+        .feature-stack {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .feature-card {
+            padding: 1.15rem;
+            border-radius: 1.1rem;
+            border: 1px solid rgba(255, 255, 255, 0.11);
+            background: rgba(255, 255, 255, 0.045);
+        }
+
+        .feature-card strong {
+            display: block;
+            color: #fff;
+            margin-bottom: 0.45rem;
+        }
+
+        .feature-card p {
+            margin: 0;
+            color: var(--soft);
+            font-size: 0.9rem;
+            line-height: 1.75;
+        }
+
+        .phone-frame {
+            width: min(100%, 14.4rem);
+            justify-self: center;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: #000;
+            box-shadow: 0 24px 90px rgba(29, 78, 216, 0.24), 0 24px 80px rgba(0, 0, 0, 0.54);
+        }
+
+        .details {
+            width: min(100%, 64rem);
+            margin: 5rem auto 0;
+        }
+
+        .band {
+            height: 1px;
+            margin-bottom: 2.5rem;
+            background: linear-gradient(90deg, rgba(255, 215, 194, 0.82), rgba(255, 244, 236, 0.96), rgba(29, 78, 216, 0.9));
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-card {
+            min-height: 13rem;
+            padding: 1.5rem;
+            border-radius: 1.2rem;
+        }
+
+        .metric {
+            margin: 0 0 0.8rem;
+            color: #64748b;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        h2 {
+            margin: 0 0 0.75rem;
+            color: #fff;
+            font-size: 1.25rem;
+        }
+
+        .detail-card p {
+            margin: 0;
+            color: var(--soft);
+            font-size: 0.92rem;
+            line-height: 1.8;
+        }
+
+        footer {
+            padding: 2.4rem 1rem;
+            text-align: center;
+            color: #475569;
+            font-size: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        @media (max-width: 900px) {
+            .hero,
+            .feature-layout,
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                min-height: auto;
+            }
+
+            .site-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 560px) {
+            main {
+                padding-top: 9.5rem;
+            }
+
+            .hero-icon {
+                width: 6.8rem;
+                height: 6.8rem;
+                border-radius: 1.45rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <a href="/" class="brand">BEYTH STUDIO</a>
+        <a href="/" class="nav-link">BACK TO TOP</a>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div>
+                <img src="../assets/yokeina-ose-wifi-icon.png" alt="「余計なお世話WiFi」対策アプリ App Icon" class="hero-icon">
+                <p class="eyebrow">ANDROID APP / GOOGLE PLAY READY</p>
+                <h1>「余計なお世話<span class="blue">WiFi</span>」<br>対策アプリ</h1>
+                <p class="lead">
+                    ギガ消費の急増と、ログイン待ち・ネット未到達・不安定なWi-Fiへの居座りに気づくためのAndroid向け通信チェックアプリです。
+                </p>
+                <div class="pills">
+                    <a href="privacy.html" class="pill">PRIVACY</a>
+                    <a href="fgs-demo/foreground-service-demo.mp4" class="pill">FGS DEMO</a>
+                    <a href="mailto:hello@beythstudio.com" class="pill">CONTACT</a>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <img src="../assets/yokeina-ose-wifi-feature.png" alt="急増検知と祓ったお世話WiFi帳を示す機能バナー" class="feature-image">
+                <div class="feature-layout">
+                    <div class="feature-stack">
+                        <div class="feature-card">
+                            <strong>急増検知</strong>
+                            <p>Wi-Fiではない状態でモバイル通信量が短時間に増えた時だけ通知します。</p>
+                        </div>
+                        <div class="feature-card">
+                            <strong>余計なお世話WiFi検知</strong>
+                            <p>ログイン待ち、ネット未到達、不安定な接続を理由付きで知らせます。</p>
+                        </div>
+                        <div class="feature-card">
+                            <strong>祓ったお世話WiFi帳</strong>
+                            <p>手動で祓った記録を、SSID/BSSIDなしで端末内に残します。</p>
+                        </div>
+                    </div>
+                    <img src="../assets/yokeina-ose-wifi-ledger-phone.png" alt="祓ったお世話WiFi帳のスマートフォン画面" class="phone-frame">
+                </div>
+            </div>
+        </section>
+
+        <section class="details">
+            <div class="band"></div>
+            <div class="detail-grid">
+                <div class="glass-card detail-card">
+                    <p class="metric">DATA</p>
+                    <h2>個人情報を集めない</h2>
+                    <p>アカウント登録なし。通信内容、URL、DNS、閲覧履歴、アプリ別履歴、SSID、BSSIDを収集しません。</p>
+                </div>
+                <div class="glass-card detail-card">
+                    <p class="metric">CONTROL</p>
+                    <h2>接続先はユーザー判断</h2>
+                    <p>アプリが接続先を変更したり通信を制御したりせず、Androidの設定画面へ案内します。</p>
+                </div>
+                <div class="glass-card detail-card">
+                    <p class="metric">STATUS</p>
+                    <h2>Google Play 準備中</h2>
+                    <p>公開前のためストアリンクはまだ掲載していません。審査用の公開URLはこのページ配下へ集約しています。</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 BEYTH STUDIO. All Rights Reserved.</p>
+    </footer>
+</body>
+
+</html>
