@@ -2,32 +2,32 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-APP_DIR="$ROOT_DIR/yokeina-ose-wifi"
+APP_DIR="$ROOT_DIR/giga-bancho"
 
 required_files=(
   "$APP_DIR/index.html"
   "$APP_DIR/privacy.html"
   "$APP_DIR/fgs-demo/foreground-service-demo.mp4"
-  "$ROOT_DIR/assets/yokeina-ose-wifi-icon.png"
-  "$ROOT_DIR/assets/yokeina-ose-wifi-feature.png"
-  "$ROOT_DIR/assets/yokeina-ose-wifi-ledger-phone.png"
+  "$ROOT_DIR/assets/giga-bancho-icon.png"
+  "$ROOT_DIR/assets/giga-bancho-feature.png"
+  "$ROOT_DIR/assets/giga-bancho-check-phone.png"
 )
 
 required_index_links=(
   "noindex, nofollow"
-  "https://beythstudio.com/yokeina-ose-wifi/"
+  "https://beythstudio.com/giga-bancho/"
   "privacy.html"
   "fgs-demo/foreground-service-demo.mp4"
   "mailto:hello@beythstudio.com"
-  "../assets/yokeina-ose-wifi-icon.png"
-  "../assets/yokeina-ose-wifi-feature.png"
-  "../assets/yokeina-ose-wifi-ledger-phone.png"
+  "../assets/giga-bancho-icon.png"
+  "../assets/giga-bancho-feature.png"
+  "../assets/giga-bancho-check-phone.png"
 )
 
 required_privacy_text=(
   "noindex, nofollow"
-  "https://beythstudio.com/yokeina-ose-wifi/privacy.html"
-  "「余計なお世話WiFi」対策アプリ"
+  "https://beythstudio.com/giga-bancho/privacy.html"
+  "ギガ番長（以下「本アプリ」）"
   "BEYTH STUDIO"
   "プライバシーポリシー"
   "SSID、BSSID"
@@ -46,9 +46,9 @@ required_privacy_text=(
 )
 
 hidden_from_homepage_text=(
-  "yokeina-ose-wifi"
-  "余計なお世"
-  "jp.beyth.yokeinaosewifi"
+  "giga-bancho"
+  "ギガ番長"
+  "jp.beyth.gigabancho"
 )
 
 failed=0
@@ -89,7 +89,7 @@ check_absent_text() {
   return 0
 }
 
-echo "=== Yokeina Ose Wi-Fi Page Check ==="
+echo "=== Giga Bancho Page Check ==="
 date '+Timestamp: %Y-%m-%d %H:%M:%S'
 echo
 
