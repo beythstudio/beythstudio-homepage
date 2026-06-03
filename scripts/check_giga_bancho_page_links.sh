@@ -7,6 +7,8 @@ APP_DIR="$ROOT_DIR/giga-bancho"
 required_files=(
   "$APP_DIR/index.html"
   "$APP_DIR/privacy.html"
+  "$APP_DIR/tokusho.html"
+  "$APP_DIR/licenses.html"
   "$APP_DIR/fgs-demo/foreground-service-demo.mp4"
   "$ROOT_DIR/assets/giga-bancho-icon.png"
   "$ROOT_DIR/assets/giga-bancho-feature.png"
@@ -17,6 +19,11 @@ required_index_links=(
   "noindex, nofollow"
   "https://beythstudio.com/giga-bancho/"
   "privacy.html"
+  "tokusho.html"
+  "licenses.html"
+  "ANDROID / iOS APP"
+  "Androidの通信量アラート"
+  "iOSの回線状態見張り"
   "fgs-demo/foreground-service-demo.mp4"
   "mailto:hello@beythstudio.com"
   "../assets/giga-bancho-icon.png"
@@ -30,6 +37,14 @@ required_privacy_text=(
   "ギガ番長（以下「本アプリ」）"
   "BEYTH STUDIO"
   "プライバシーポリシー"
+  "Android向けアプリ"
+  "iPhone/iPad"
+  "Screen Time"
+  "FamilyControls / ManagedSettings"
+  "バイト単位の通信量増加"
+  "Google Mobile Ads SDK"
+  "App Store"
+  "Google Play"
   "SSID、BSSID"
   "収集、保存、外部送信しません"
   "端末内で利用"
@@ -43,6 +58,38 @@ required_privacy_text=(
   "接続先をアプリが変更"
   "通信を制御"
   "hello@beythstudio.com"
+)
+
+required_tokusho_text=(
+  "noindex, nofollow"
+  "https://beythstudio.com/giga-bancho/tokusho.html"
+  "特定商取引法に基づく表記"
+  "BEYTH STUDIO"
+  "代表 Takuya Hatanaka"
+  "hello@beythstudio.com"
+  "App Store"
+  "Google Play"
+  "広告解除"
+  "返品・キャンセル・返金"
+  "privacy.html"
+  "licenses.html"
+)
+
+required_licenses_text=(
+  "noindex, nofollow"
+  "https://beythstudio.com/giga-bancho/licenses.html"
+  "ライセンス"
+  "AndroidX"
+  "Jetpack Compose"
+  "Kotlin"
+  "Google Play Billing Library"
+  "Google Mobile Ads SDK"
+  "SwiftUI"
+  "StoreKit"
+  "FamilyControls / ManagedSettings"
+  "Apache License 2.0"
+  "privacy.html"
+  "tokusho.html"
 )
 
 hidden_from_homepage_text=(
@@ -103,6 +150,14 @@ done
 
 for text in "${required_privacy_text[@]}"; do
   check_text "$APP_DIR/privacy.html" "$text" || failed=1
+done
+
+for text in "${required_tokusho_text[@]}"; do
+  check_text "$APP_DIR/tokusho.html" "$text" || failed=1
+done
+
+for text in "${required_licenses_text[@]}"; do
+  check_text "$APP_DIR/licenses.html" "$text" || failed=1
 done
 
 while IFS= read -r public_file; do
