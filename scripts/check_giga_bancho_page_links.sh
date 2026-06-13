@@ -6,6 +6,7 @@ APP_DIR="$ROOT_DIR/giga-bancho"
 
 required_files=(
   "$APP_DIR/index.html"
+  "$APP_DIR/support.html"
   "$APP_DIR/privacy.html"
   "$APP_DIR/tokusho.html"
   "$APP_DIR/licenses.html"
@@ -15,20 +16,36 @@ required_files=(
   "$ROOT_DIR/assets/giga-bancho-check-phone.png"
 )
 
-required_index_links=(
-  "noindex, nofollow"
+required_index_text=(
   "https://beythstudio.com/giga-bancho/"
+  "support.html"
   "privacy.html"
   "tokusho.html"
   "licenses.html"
-  "ANDROID / iOS APP"
+  "MOBILE APP SUPPORT"
   "Androidの通信量アラート"
   "iOSの回線状態見張り"
   "fgs-demo/foreground-service-demo.mp4"
-  "mailto:hello@beythstudio.com"
   "../assets/giga-bancho-icon.png"
   "../assets/giga-bancho-feature.png"
   "../assets/giga-bancho-check-phone.png"
+)
+
+required_support_text=(
+  "https://beythstudio.com/giga-bancho/support.html"
+  "ギガ番長 サポート"
+  "hello@beythstudio.com"
+  "BEYTH STUDIO / Takuya Hatanaka"
+  "1841-81 Sueda"
+  "電話番号"
+  "購入を復元"
+  "Screen Time"
+  "見張りを許可"
+  "見張る対象を選ぶ"
+  "VPN、パケット解析"
+  "privacy.html"
+  "tokusho.html"
+  "licenses.html"
 )
 
 required_privacy_text=(
@@ -144,8 +161,12 @@ for file in "${required_files[@]}"; do
   check_file "$file" || failed=1
 done
 
-for text in "${required_index_links[@]}"; do
+for text in "${required_index_text[@]}"; do
   check_text "$APP_DIR/index.html" "$text" || failed=1
+done
+
+for text in "${required_support_text[@]}"; do
+  check_text "$APP_DIR/support.html" "$text" || failed=1
 done
 
 for text in "${required_privacy_text[@]}"; do
