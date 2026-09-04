@@ -109,10 +109,12 @@ required_licenses_text=(
   "tokusho.html"
 )
 
-hidden_from_homepage_text=(
-  "giga-bancho"
+required_homepage_text=(
+  'id="giga-bancho"'
   "ギガ番長"
-  "jp.beyth.gigabancho"
+  "assets/giga-bancho-icon.png"
+  "https://play.google.com/store/apps/details?id=jp.beyth.yokeinaosewifi"
+  "Android版 配信中"
 )
 
 failed=0
@@ -138,19 +140,6 @@ check_text() {
 
   printf '[FAIL] missing text in %s -> %s\n' "$(basename "$file")" "$text"
   return 1
-}
-
-check_absent_text() {
-  local file="$1"
-  local text="$2"
-  local display_file="${file#$ROOT_DIR/}"
-  if grep -Fq "$text" "$file"; then
-    printf '[FAIL] hidden app exposed in %s -> %s\n' "$display_file" "$text"
-    return 1
-  fi
-
-  printf '[OK]   hidden from %s -> %s\n' "$display_file" "$text"
-  return 0
 }
 
 echo "=== Giga Bancho Page Check ==="
@@ -181,23 +170,9 @@ for text in "${required_licenses_text[@]}"; do
   check_text "$APP_DIR/licenses.html" "$text" || failed=1
 done
 
-while IFS= read -r public_file; do
-  case "$public_file" in
-    "$APP_DIR"/*)
-      continue
-      ;;
-  esac
-
-  for text in "${hidden_from_homepage_text[@]}"; do
-    check_absent_text "$public_file" "$text" || failed=1
-  done
-done < <(
-  find "$ROOT_DIR" \
-    -type f \( -name '*.html' -o -name 'robots.txt' -o -name 'sitemap.xml' \) \
-    -not -path "$ROOT_DIR/.git/*" \
-    -not -path "$ROOT_DIR/node_modules/*" \
-    | sort
-)
+for text in "${required_homepage_text[@]}"; do
+  check_text "$ROOT_DIR/index.html" "$text" || failed=1
+done
 
 video_size="$(wc -c < "$APP_DIR/fgs-demo/foreground-service-demo.mp4" 2>/dev/null || printf '0')"
 if [[ "$video_size" -gt 102400 ]]; then
