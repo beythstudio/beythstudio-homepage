@@ -9,6 +9,11 @@ const GOLD = '#c6a565';
 const COLORS = ['#e58b9f', '#b5d889', '#78c8d8'];
 const NOTES = [62, 65, 67, 69, 72, 74, 77];
 const BUMPERS = [{x:183,y:177}, {x:370,y:183}, {x:275,y:305}];
+const SURFACES = [
+  {name:'BOOST',color:'#f4b56f'}, {name:'SHIFT',color:'#c3a0ee'},
+  {name:'ECHO',color:'#8adbd4'}, {name:'KICK',color:'#f4b56f'}, {name:'SNAP',color:'#8adbd4'},
+  {name:'PUNCH',color:'#f4b56f'}, {name:'CHIME',color:'#8adbd4'}
+];
 const RAILS = [
   [80,470,63,152], [63,152,94,87], [94,87,161,46], [161,46,400,46],
   [400,46,466,87], [466,87,497,152], [497,152,480,470],
@@ -16,13 +21,15 @@ const RAILS = [
   [94,430,149,481], [149,481,113,481], [113,481,94,430],
   [466,430,411,481], [411,481,447,481], [447,481,466,430]
 ];
+const RAIL_SURFACES = [0,0,0,1,2,2,2,3,4,3,3,3,4,4,4];
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
 export function newGame(seed = Math.random()) {
   return {
-    mode:'ready', time:0, score:0, hits:0, combo:0, bestCombo:0, lastHit:-10,
+    mode:'ready', time:0, score:0, hits:0, notes:0, combo:0, bestCombo:0, lastHit:-10,
     lastFlip:-10, flip:0, balls:[], bumpers:BUMPERS.map(p=>({...p, radius:43, flash:0, hop:0})),
-    pattern:Array.from({length:3},()=>Array(STEPS).fill(null)),
+    pattern:Array.from({length:3},()=>Array.from({length:STEPS},()=>[])),
+    surfaces:SURFACES.map(()=>({flash:0})),
     seed, launches:0, bonus:false, events:[], message:'', messageUntil:0
   };
 }
@@ -30,7 +37,7 @@ export function newGame(seed = Math.random()) {
 function launch(game, extra = false) {
   // Deterministic per-round serves; player timing supplies the other variation.
   const angle = Math.sin(game.seed * 71 + game.launches++ * 2.39);
-  game.balls.push({x:extra?110:450,y:335,vx:extra?120+angle*65:-150-angle*85,vy:-780,trail:[],contacts:[-1,-1,-1]});
+  game.balls.push({x:extra?110:450,y:335,vx:extra?120+angle*65:-150-angle*85,vy:-780,trail:[],octave:0,charge:0,color:GOLD});
   game.events.push({type:extra?'bonus':'serve', x:extra?110:450,y:335});
 }
 
@@ -41,21 +48,21 @@ export function flip(game) {
   return true;
 }
 
-export function addNote(game, track, position, speed) {
-  const step = Math.round(game.time / STEP) % STEPS;
+function recordNote(game, track, note, source) {
+  const beat=Math.round(game.time/STEP), step=beat%STEPS;
+  const recorded={...note,source,firstLoop:beat+STEPS};
+  const cell=game.pattern[track][step];
+  const previous=cell.findIndex(item=>item.source===source);
+  if(previous<0)cell.push(recorded);else cell[previous]=recorded;
+  game.notes++;
+  return {step,note:recorded};
+}
+
+export function addNote(game, track, position, speed, octave=0) {
   const pitch = NOTES[Math.floor(clamp(position, 0, .999) * NOTES.length)];
-  if (track === 0) {
-    const bass = [38, 45, 48][Math.floor(clamp(speed / 850,0,.999) * 3)];
-    for (let i=0; i<STEPS; i+=8) game.pattern[0][i]={note:bass,velocity:.68};
-    game.pattern[0][step]={note:bass+12,velocity:.55};
-  } else if (track === 1) {
-    game.pattern[1][step]={note:pitch,velocity:.8};
-    game.pattern[1][(step+16)%STEPS]={note:pitch+12,velocity:.35};
-  } else {
-    for (let i=0; i<STEPS; i+=4) game.pattern[2][i]={note:i%8===0?0:1,velocity:.6};
-    game.pattern[2][step]={note:2,velocity:.48};
-  }
-  return {step,note:game.pattern[track][step]};
+  const value=track===0?[38,45,48][Math.floor(clamp(speed/850,0,.999)*3)]+octave:
+    track===1?pitch+octave:position<.5?0:1;
+  return recordNote(game,track,{note:value,velocity:.9},`app-${track}`);
 }
 
 function hit(game, index, ball, nx, ny) {
@@ -63,8 +70,6 @@ function hit(game, index, ball, nx, ny) {
   const speed = Math.hypot(ball.vx,ball.vy);
   ball.vx=nx*clamp(speed*.9+170,420,760);
   ball.vy=ny*clamp(speed*.9+170,420,760)-55;
-  if (game.time-ball.contacts[index] < .18) return;
-  ball.contacts[index]=game.time;
   game.combo=game.time-game.lastHit<2.6 ? game.combo+1 : 1;
   game.lastHit=game.time;
   game.hits++;
@@ -73,15 +78,40 @@ function hit(game, index, ball, nx, ny) {
   game.score+=points;
   bumper.flash=1;
   bumper.hop=1;
-  const recorded=addNote(game,index,(Math.atan2(ny,nx)+Math.PI)/TAU,speed);
+  const recorded=addNote(game,index,(Math.atan2(ny,nx)+Math.PI)/TAU,speed,ball.octave);
   game.events.push({type:'hit',track:index,x:ball.x,y:ball.y,points,nx,ny,...recorded});
   if (!game.bonus && game.combo>=4) {
     game.bonus=true;
     launch(game,true);
-    game.message='番長「もう1球。」'; game.messageUntil=game.time+2.8;
-  } else if (!game.bonus && game.combo===3) {
-    game.message='いい調子。あと1ヒットで、もう1球。'; game.messageUntil=game.time+2;
+    game.message='MULTIBALL'; game.messageUntil=game.time+2;
   }
+}
+
+function surfaceHit(game, surface, ball, collision, powered=false) {
+  const strength=clamp(collision.impact/550,.35,1);
+  let track=1, note={note:74,velocity:.72,sound:'bell'};
+  if(surface===0) {
+    ball.vx=clamp(Math.abs(ball.vx)+60,190,360);
+    ball.vy=-clamp(Math.abs(ball.vy)*.7+190,320,640);
+    track=0;note={note:43,velocity:.78,sound:'rise'};
+  } else if(surface===1) {
+    ball.octave=ball.octave?0:12;
+    note.note=62+ball.octave;
+  } else if(surface===2) {
+    note.note=NOTES[Math.floor(clamp(ball.y/H,0,.999)*NOTES.length)]+12;
+    note.echo=true;
+  } else if(surface===3 || surface===4) {
+    track=2;note={note:surface===3?0:1,velocity:.62};
+  } else if(surface===5) {
+    track=0;note={note:38+(powered?12:0),velocity:powered?.9:.48};
+  } else {
+    note={note:NOTES[Math.floor(collision.along*(NOTES.length-1))]+12,velocity:powered?.85:.5,sound:'bell',echo:true};
+  }
+  note.pan=clamp((ball.x-W/2)/(W/2),-.75,.75);
+  game.surfaces[surface].flash=1;
+  ball.charge=.8;ball.color=SURFACES[surface].color;
+  const recorded=recordNote(game,track,note,`surface-${surface}`);
+  game.events.push({type:'surface',surface,track,x:ball.x,y:ball.y,nx:collision.nx,ny:collision.ny,strength,powered,...recorded});
 }
 
 export function flippers(game) {
@@ -106,7 +136,7 @@ function segmentCollision(ball, ax, ay, bx, by, radius, bounce) {
   ball.x=px+nx*(radius+.15); ball.y=py+ny*(radius+.15);
   const dot=ball.vx*nx+ball.vy*ny;
   if (dot<0) {ball.vx-=(1+bounce)*dot*nx; ball.vy-=(1+bounce)*dot*ny;}
-  return {along,nx,ny};
+  return {along,nx,ny,impact:Math.max(0,-dot)};
 }
 
 export function stepGame(game, delta) {
@@ -116,6 +146,7 @@ export function stepGame(game, delta) {
   for(let s=0;s<steps;s++) {
     game.time=Math.min(ROUND,game.time+dt);
     const paddles=flippers(game);
+    game.surfaces.forEach(surface=>surface.flash=Math.max(0,surface.flash-dt*2.5));
     game.bumpers.forEach((bumper,i)=>{
       bumper.flash=Math.max(0,bumper.flash-dt*3);
       bumper.hop=Math.max(0,bumper.hop-dt*2.4);
@@ -123,15 +154,27 @@ export function stepGame(game, delta) {
       bumper.y=BUMPERS[i].y-Math.sin(bumper.hop*Math.PI)*18;
     });
     for(const ball of [...game.balls]) {
+      ball.charge=Math.max(0,ball.charge-dt);
       ball.vy+=620*dt;
       ball.x+=ball.vx*dt; ball.y+=ball.vy*dt;
-      for(const [ax,ay,bx,by] of RAILS) segmentCollision(ball,ax,ay,bx,by,R+2,.91);
+      // A new incoming impact makes a sound; separating overlaps do not retrigger it.
+      const touched=new Set();
+      RAILS.forEach(([ax,ay,bx,by],index)=>{
+        const collision=segmentCollision(ball,ax,ay,bx,by,R+2,.91);
+        const surface=RAIL_SURFACES[index];
+        if(collision?.impact>0 && !touched.has(surface)) {
+          touched.add(surface);surfaceHit(game,surface,ball,collision);
+        }
+      });
       for(const paddle of paddles) {
         const collision=segmentCollision(ball,paddle.x,paddle.y,paddle.tx,paddle.ty,R+7,.64);
-        if(collision && collision.ny<.3 && game.time-game.lastFlip<.24) {
-          ball.vy=-680-collision.along*110;
-          ball.vx=paddle.side*(145+collision.along*300);
-          game.events.push({type:'flip',x:ball.x,y:ball.y});
+        if(collision?.impact>0) {
+          const powered=collision.ny<.3 && game.time-game.lastFlip<.24;
+          if(powered) {
+            ball.vy=-(paddle.side===1?680:625)-collision.along*110;
+            ball.vx=paddle.side*((paddle.side===1?145:190)+collision.along*260);
+          }
+          surfaceHit(game,paddle.side===1?5:6,ball,collision,powered);
         }
       }
       game.bumpers.forEach((bumper,i)=>{
@@ -140,7 +183,7 @@ export function stepGame(game, delta) {
           const nx=distance>.001?dx/distance:0, ny=distance>.001?dy/distance:-1;
           ball.x=bumper.x+nx*(bumper.radius+R+.5);
           ball.y=bumper.y+ny*(bumper.radius+R+.5);
-          hit(game,i,ball,nx,ny);
+          if(ball.vx*nx+ball.vy*ny<0) hit(game,i,ball,nx,ny);
         }
       });
       const speed=Math.hypot(ball.vx,ball.vy);
@@ -153,7 +196,6 @@ export function stepGame(game, delta) {
       game.events.push({type:'drain'});
       if(!game.balls.length && game.time<ROUND) {
         launch(game);
-        game.message='音は残る。次の1球。'; game.messageUntil=game.time+1.8;
       }
     }
     if(game.time-game.lastHit>2.6) game.combo=0;
@@ -175,33 +217,44 @@ function makeNoise(context) {
 function instrument(context, destination, noise, track, note, when, scale=1) {
   const gain=context.createGain();
   const panner=context.createStereoPanner();
-  panner.pan.value=[-.22,.25,0][track];
+  panner.pan.value=note.pan??[-.22,.25,0][track];
   gain.connect(panner).connect(destination);
-  const velocity=note.velocity*scale;
-  let source, duration, peak;
-  if(track===2 && note.note!==0) {
-    source=context.createBufferSource(); source.buffer=noise;
-    const filter=context.createBiquadFilter(); filter.type='highpass';
-    filter.frequency.value=note.note===1?1200:6500;
-    source.connect(filter).connect(gain);
-    duration=note.note===1?.14:.07;
-    peak=note.note===1?.09:.055;
-  } else {
-    source=context.createOscillator();
-    source.type=track===0?'triangle':'sine';
-    const frequency=track===2?150:440*2**((note.note-69)/12);
-    source.frequency.setValueAtTime(frequency,when);
-    if(track===2) source.frequency.exponentialRampToValueAtTime(42,when+.15);
-    source.connect(gain);
-    duration=track===0?.55:track===1?1.45:.24;
-    peak=track===0?.14:track===1?.13:.24;
+  const sources=[], nodes=[gain,panner];
+  const duration=track===0?.48:track===1?(note.sound==='bell'?.85:1.1):note.note===0?.28:.16;
+  const peak=track===0?.21:track===1?.19:.28;
+  const frequency=track===2?(note.note===0?165:190):440*2**((note.note-69)/12);
+  function tone(frequency, level, type, endFrequency) {
+    const source=context.createOscillator(), partial=context.createGain();
+    source.type=type;source.frequency.setValueAtTime(frequency,when);
+    if(endFrequency)source.frequency.exponentialRampToValueAtTime(endFrequency,when+Math.min(.16,duration));
+    partial.gain.value=level;source.connect(partial).connect(gain);
+    sources.push(source);nodes.push(partial);
+  }
+  tone(frequency,1,track===1?'sine':'triangle',track===2?52:note.sound==='rise'?frequency*2:0);
+  if(track!==2)tone(frequency*2,.22,track===0?'sine':'triangle');
+  if(track===2 && note.note===1) {
+    const source=context.createBufferSource(), filter=context.createBiquadFilter();
+    source.buffer=noise;filter.type='highpass';filter.frequency.value=1100;
+    source.connect(filter).connect(gain);sources.push(source);nodes.push(filter);
   }
   gain.gain.setValueAtTime(.00001,when);
-  gain.gain.exponentialRampToValueAtTime(Math.max(.0001,peak*velocity),when+.009);
+  gain.gain.exponentialRampToValueAtTime(Math.max(.0001,peak*note.velocity*scale),when+.003);
   gain.gain.exponentialRampToValueAtTime(.00001,when+duration);
-  source.start(when); source.stop(when+duration+.02);
-  source.onended=()=>{source.disconnect();gain.disconnect();panner.disconnect();};
-  return source;
+  let remaining=sources.length;
+  sources.forEach(source=>{
+    source.start(when);source.stop(when+duration+.02);
+    source.onended=()=>{source.disconnect();if(--remaining===0)nodes.forEach(node=>node.disconnect());};
+  });
+  if(note.echo)for(let i=1;i<=2;i++)sources.push(...instrument(context,destination,noise,track,{...note,echo:false},when+i*.14,scale*(i===1?.34:.14)));
+  return sources;
+}
+
+function audioOutput(context) {
+  const compressor=context.createDynamicsCompressor();
+  compressor.threshold.value=-12;compressor.knee.value=18;compressor.ratio.value=5;
+  compressor.attack.value=.003;compressor.release.value=.15;
+  compressor.connect(context.destination);
+  return compressor;
 }
 
 export function encodeWav(buffer) {
@@ -223,10 +276,10 @@ export function encodeWav(buffer) {
 
 export async function renderSong(pattern, OfflineContext=OfflineAudioContext) {
   const context=new OfflineContext(2,Math.ceil((STEPS*STEP*2+1.6)*44100),44100);
-  const noise=makeNoise(context);
+  const noise=makeNoise(context), output=audioOutput(context);
   for(let bar=0;bar<2;bar++) for(let step=0;step<STEPS;step++) {
     pattern.forEach((track,i)=>{
-      if(track[step]) instrument(context,context.destination,noise,i,track[step],.025+(bar*STEPS+step)*STEP);
+      track[step].forEach(note=>instrument(context,output,noise,i,note,.025+(bar*STEPS+step)*STEP,.78));
     });
   }
   return encodeWav(await context.startRendering());
@@ -248,7 +301,7 @@ async function startExhibition() {
   const download=root.querySelector('.download-link');
   const motion=matchMedia('(prefers-reduced-motion: reduce)');
   let game=newGame(), visible=true, frame=0, last=0, visualTime=0;
-  let audio, noise, muted=false, playingSong=false, audioTimer, audioEpoch=0, nextStep=0;
+  let audio, output, noise, muted=false, playingSong=false, audioTimer, audioEpoch=0, nextStep=0, starting=false;
   let exportUrl, pauseMode='playing', sparks=[], bursts=[], labels=[], previousStep=-1;
   let songSteps=Infinity;
   let pendingSuspend=Promise.resolve();
@@ -267,7 +320,7 @@ async function startExhibition() {
   function announce(text) {status.textContent=text;}
   function sequence(current=-1) {
     game.pattern.forEach((track,i)=>track.forEach((note,j)=>{
-      dots[i][j].classList.toggle('on',Boolean(note));
+      dots[i][j].classList.toggle('on',note.length>0);
       dots[i][j].classList.toggle('current',j===current);
     }));
     previousStep=current;
@@ -276,25 +329,22 @@ async function startExhibition() {
     root.dataset.mode=game.mode;
     score.textContent=String(game.score).padStart(3,'0');
     timer.textContent=`00:${String(Math.ceil(ROUND-game.time)).padStart(2,'0')}`;
-    combo.textContent=game.combo>1?`${game.combo} COMBO`:game.hits?`${game.hits} HITS`:'MAKE A LITTLE MUSIC';
-    action.disabled=game.mode==='finished';
-    action.textContent=game.mode==='ready'?'音ありで、スタート ↗':game.mode==='paused'?'つづける ▷':'弾く';
+    combo.textContent=game.combo>1?`${game.combo} COMBO`:'';
+    action.disabled=game.mode==='finished' || starting;
+    action.textContent=starting?'準備中…':game.mode==='ready'?'START ↗':game.mode==='paused'?'RESUME ▷':'弾く';
     pause.hidden=game.mode!=='playing';
-    overlay.hidden=!['ready','paused'].includes(game.mode);
-    root.querySelector('.start-note').textContent=game.mode==='paused'?'ひと休み中。':'30秒、音で遊ぼう。';
-    root.querySelector('.board-instruction').textContent=game.mode==='paused'?'つづけるボタンで再開':'球が下に来たら、タップ / SPACE';
+    overlay.hidden=game.mode!=='paused';
     sound.textContent=muted?'音 OFF':'音 ON';
     sound.setAttribute('aria-label',muted?'音を入れる':'音を消す');
     sound.setAttribute('aria-pressed',String(!muted));
-    if(game.mode==='ready' && muted) action.textContent='音なしで、スタート ↗';
     action.setAttribute('aria-label',action.textContent);
-    listen.textContent=playingSong?'再生を止める Ⅱ':'できた曲を聴く ▷';
+    listen.textContent=playingSong?'停止 Ⅱ':'再生 ▷';
     root.querySelector('.game-message').textContent=game.messageUntil>game.time?game.message:'';
   }
   async function enableAudio() {
     if(muted) return false;
     try {
-      if(!audio) {audio=new AudioContext();noise=makeNoise(audio);}
+      if(!audio) {audio=new AudioContext({latencyHint:'interactive'});noise=makeNoise(audio);output=audioOutput(audio);}
       await pendingSuspend;
       if(muted)return false;
       await audio.resume(); return audio.state==='running';
@@ -303,9 +353,10 @@ async function startExhibition() {
     }
   }
   function voice(track,note,when,scale=1) {
-    const source=instrument(audio,audio.destination,noise,track,note,when,scale);
-    voices.add(source);
-    source.addEventListener('ended',()=>voices.delete(source),{once:true});
+    instrument(audio,output,noise,track,note,when,scale).forEach(source=>{
+      voices.add(source);
+      source.addEventListener('ended',()=>voices.delete(source),{once:true});
+    });
   }
   function stopAudio() {
     clearInterval(audioTimer); audioTimer=null;
@@ -326,8 +377,10 @@ async function startExhibition() {
       while(nextStep<songSteps && audioEpoch+nextStep*STEP<audio.currentTime+.1) {
         const when=audioEpoch+nextStep*STEP;
         if(when>=audio.currentTime) game.pattern.forEach((track,index)=>{
-          const note=track[nextStep%STEPS];
-          if(note) voice(index,note,when);
+          track[nextStep%STEPS].forEach(note=>{
+            // The first sound belongs to the impact; the quiet repeat begins one loop later.
+            if(playingSong || nextStep>=note.firstLoop)voice(index,note,when,playingSong?.78:.28);
+          });
         });
         nextStep++;
       }
@@ -335,6 +388,10 @@ async function startExhibition() {
     tick(); audioTimer=setInterval(tick,25);
   }
   function feedback(event) {
+    if(event.type==='hit' || event.type==='surface') {
+      if(!muted && audio?.state==='running')voice(event.track,event.note,audio.currentTime+.003);
+      sequence(Math.floor(game.time/STEP)%STEPS);
+    }
     if(event.type==='hit') {
       if(!motion.matches) {
         const bumper=game.bumpers[event.track];
@@ -350,34 +407,42 @@ async function startExhibition() {
             life,total:life,color:COLORS[event.track],kind:signature?event.track:-1,
             size:signature?7+Math.random()*6:1+Math.random(),angle,spin:(Math.random()-.5)*3,glyph:i%2===0?'leaf':'aiueo'[i%5]});
         }
-        // A dense combo stays readable, including on a phone.
-        if(sparks.length>300)sparks.splice(0,sparks.length-300);
-        if(bursts.length>12)bursts.shift();
       }
       labels.push({x:event.x,y:event.y-35,text:`+${event.points}`,life:1,color:COLORS[event.track]});
-      if(!muted && audio?.state==='running') voice(event.track,event.note,audio.currentTime+.005,.9);
-      sequence(Math.floor(game.time/STEP)%STEPS);
       if(game.hits===1) announce('最初の音が入りました。ヒットを重ねると曲が育ちます。');
     }
+    if(event.type==='surface') {
+      const surface=SURFACES[event.surface];
+      const text=event.surface===1?(event.note.note===74?'+1 OCT':'BASE'):surface.name;
+      labels.push({x:clamp(event.x,118,W-118),y:clamp(event.y-24,73,490),text,life:.65,color:surface.color,small:true});
+      if(!motion.matches) {
+        bursts.push({x:event.x,y:event.y,surface:event.surface,color:surface.color,life:.55,total:.55,strength:event.strength,nx:event.nx,ny:event.ny});
+        for(let i=0;i<12;i++) {
+          const angle=Math.atan2(event.ny,event.nx)+(Math.random()-.5)*2.6;
+          const speed=90+Math.random()*180, life=.3+Math.random()*.25;
+          sparks.push({x:event.x,y:event.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life,total:life,color:surface.color,kind:-1,size:1.3,angle,spin:0});
+        }
+      }
+    }
+    // Keep multi-ball impacts readable on a phone.
+    if(sparks.length>300)sparks.splice(0,sparks.length-300);
+    if(bursts.length>16)bursts.splice(0,bursts.length-16);
+    if(labels.length>12)labels.splice(0,labels.length-12);
     if(event.type==='bonus') {
       announce('4連続ヒット。番長がもう1球、追加しました。');
-      if(!motion.matches) root.closest('.hero').querySelector('h1 em').animate(
-        [{transform:'rotate(0)'},{transform:'rotate(-4deg) translateY(-5px)',offset:.35},{transform:'rotate(0)'}],
-        {duration:600,easing:'ease-out'}
-      );
     }
     if(event.type==='finish') finish();
   }
   function finish() {
     stopAudio(); playingSong=false;
     result.hidden=false;
-    root.querySelector('.result-title').textContent=game.hits?'あなたの30秒が、1曲に。':'次は、最初のヒットを。';
-    root.querySelector('.result-stats').textContent=`${game.score} SCORE · ${game.hits} HITS · BEST ${game.bestCombo} COMBO`;
-    listen.hidden=save.hidden=!game.hits;download.hidden=true;
-    if(game.hits)prepareSong(game);
-    announce(game.hits?`終了。${game.hits}ヒットで曲ができました。聴くか、保存できます。`:'終了。もう一回遊べます。');
+    root.querySelector('.result-title').textContent=String(game.score).padStart(3,'0');
+    root.querySelector('.result-stats').textContent=`${game.notes} NOTES · BEST ${game.bestCombo} COMBO`;
+    listen.hidden=save.hidden=!game.notes;download.hidden=true;
+    if(game.notes)prepareSong(game);
+    announce(game.notes?`終了。${game.notes}回のヒットからできた曲を、再生・保存できます。`:'終了。もう一回遊べます。');
     action.hidden=true; update(); sequence();
-    if(game.hits && !muted) {
+    if(game.notes && !muted) {
       const completed=game;
       enableAudio().then(enabled=>{
         if(enabled && game===completed && game.mode==='finished' && visible && !document.hidden) {
@@ -388,8 +453,12 @@ async function startExhibition() {
     if(root.contains(document.activeElement)) root.querySelector('.replay-button').focus({preventScroll:true});
   }
   async function play() {
-    if(game.mode==='finished') return;
+    if(game.mode==='finished' || starting) return;
     if(game.mode==='ready' || game.mode==='paused') {
+      starting=true;update();
+      await enableAudio();
+      starting=false;
+      if(document.hidden || !visible){update();return;}
       songSteps=Infinity;
       if(game.mode==='ready') {flip(game); announce('スタート。球が下に来たらタップかスペースで弾いてください。');}
       else game.mode=pauseMode;
@@ -397,7 +466,6 @@ async function startExhibition() {
       const bounds=root.getBoundingClientRect();
       if(bounds.top<0 || bounds.bottom>innerHeight) root.scrollIntoView({block:'center',behavior:motion.matches?'instant':'smooth'});
       schedule();
-      await enableAudio();
       if(game.mode==='playing') runAudio();
     } else flip(game);
     update(); schedule();
@@ -429,7 +497,7 @@ async function startExhibition() {
     stopAudio();playingSong=false; game=newGame(); sparks=[];bursts=[];labels=[];
     result.hidden=true;action.hidden=false;action.disabled=false;
     if(exportUrl) {URL.revokeObjectURL(exportUrl);exportUrl=null;}
-    save.textContent='曲を書き出す ↓';download.hidden=true;
+    save.textContent='保存 ↓';download.hidden=true;
     sequence();play();action.focus({preventScroll:true});
   });
   sound.addEventListener('click',async()=>{
@@ -450,7 +518,7 @@ async function startExhibition() {
   // Render at the end of the round so Save remains a direct user gesture.
   async function prepareSong(round) {
     save.hidden=false;download.hidden=true;
-    save.disabled=true;save.textContent='曲を書き出しています…';
+    save.disabled=true;save.textContent='書き出し中…';
     try {
       const wav=await renderSong(round.pattern);
       if(round!==game)return;
@@ -461,11 +529,11 @@ async function startExhibition() {
     } catch(error) {
       if(round!==game)return;
       announce('曲を書き出せませんでした。保存ボタンでもう一度試せます。');
-      save.textContent='もう一度書き出す ↻';
+      save.textContent='再試行 ↻';
       console.error('Song export:',error);
     } finally {if(round===game)save.disabled=false;}
   }
-  save.addEventListener('click',()=>{if(game.hits)prepareSong(game);});
+  save.addEventListener('click',()=>{if(game.notes)prepareSong(game);});
   download.addEventListener('click',()=>announce('保存を開始しました。ダウンロード先を確認してください。'));
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseGame();else{last=performance.now();schedule();}});
   window.addEventListener('pagehide',()=>{pauseGame();if(exportUrl)URL.revokeObjectURL(exportUrl);});
@@ -523,6 +591,23 @@ async function startExhibition() {
     const inner=outline.map(([x,y])=>[280+(x-280)*.965,260+(y-260)*.957]);
     line(inner,'#e4cb866a',.8,true);
     RAILS.slice(9).forEach(([a,b,c,d])=>line([[a,b],[c,d]],'#cfac6775',1.2));
+    RAILS.forEach(([ax,ay,bx,by],i)=>{
+      const id=RAIL_SURFACES[i], surface=SURFACES[id], flash=game.surfaces[id].flash;
+      ctx.save();ctx.shadowColor=surface.color;ctx.shadowBlur=flash*23;
+      line([[ax,ay],[bx,by]],surface.color+(flash>.05?'e0':'60'),1.6+flash*2.8);
+      ctx.restore();
+    });
+    // Mark the playable surfaces directly, without an instruction panel.
+    [[90,315,-Math.PI/2,0],[280,65,0,1],[470,315,Math.PI/2,2]].forEach(([x,y,angle,id])=>{
+      const surface=SURFACES[id], pulse=game.surfaces[id].flash;
+      ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha=.65+pulse*.35;
+      ctx.fillStyle=surface.color;ctx.font='500 9px Outfit,sans-serif';ctx.textAlign='center';
+      ctx.fillText(surface.name,0,0);
+      if(id===0)for(let i=0;i<3;i++)line([[30+i*10,-5],[34+i*10,-2],[30+i*10,1]],surface.color,1.5);
+      if(id===1)line([[-40,1],[-36,-4],[-32,1],[-28,-4],[-24,1]],surface.color,1.2);
+      if(id===2)for(let i=0;i<3;i++)circle(32+i*11,-3,2+i,surface.color,1);
+      ctx.restore();
+    });
     // Decorative screws and a tiny orbit mark stay still when reduced motion is requested.
     [[101,113],[459,113],[84,390],[476,390],[161,FLIPPER_Y],[399,FLIPPER_Y]].forEach(([x,y])=>{
       circle(x,y,5,'#c6a56585');line([[x-1.5,y],[x+1.5,y]],'#c6a565a0');
@@ -532,6 +617,21 @@ async function startExhibition() {
     circle(0,0,15,'#c6a56570');ctx.restore();
     bursts.forEach(burst=>{
       const progress=1-burst.life/burst.total, fade=(1-progress)**2;
+      if(burst.surface!==undefined) {
+        const reach=14+progress*(burst.surface===0?100:64);
+        ctx.save();ctx.globalAlpha=fade;ctx.shadowColor=burst.color;ctx.shadowBlur=12;
+        ctx.translate(burst.x,burst.y);ctx.rotate(Math.atan2(burst.ny,burst.nx));
+        if(burst.surface===0 || burst.surface===5) {
+          for(let i=0;i<3;i++)line([[reach-i*14-8,-12],[reach-i*14,0],[reach-i*14-8,12]],burst.color,2.4-i*.5);
+        } else {
+          const count=burst.surface===2 || burst.surface===6?3:1;
+          for(let i=0;i<count;i++) {
+            ctx.beginPath();ctx.arc(0,0,Math.max(2,reach-i*13),-Math.PI*.48,Math.PI*.48);
+            ctx.strokeStyle=burst.color;ctx.lineWidth=1.8;ctx.stroke();
+          }
+        }
+        ctx.restore();return;
+      }
       const radius=46+(1-(1-progress)**3)*72*burst.strength;
       const color=COLORS[burst.track];
       ctx.save();ctx.globalCompositeOperation='lighter';
@@ -584,19 +684,28 @@ async function startExhibition() {
       ctx.fillText(['BASS','MELODY','BEAT'][i],x,y+r+24);
     });
     flippers(game).forEach(paddle=>{
-      const color=game.flip>.1?'#f2d99d':GOLD;
+      const id=paddle.side===1?5:6, surface=SURFACES[id], pulse=game.surfaces[id].flash;
+      const color=surface.color;
+      ctx.save();ctx.shadowColor=color;ctx.shadowBlur=pulse*27;
       line([[paddle.x,paddle.y+4],[paddle.tx,paddle.ty+4]],'#584325',17);
-      line([[paddle.x,paddle.y],[paddle.tx,paddle.ty]],color,15);
+      line([[paddle.x,paddle.y],[paddle.tx,paddle.ty]],color,15+pulse*2);
       line([[paddle.x,paddle.y],[paddle.tx,paddle.ty]],'#211e14',10);
       line([[paddle.x,paddle.y-2],[paddle.tx,paddle.ty-2]],color+'bd',1);
       circle(paddle.x,paddle.y,3,color);
+      ctx.restore();
+      ctx.save();ctx.translate((paddle.x+paddle.tx)/2,(paddle.y+paddle.ty)/2);
+      ctx.rotate(Math.atan2(paddle.ty-paddle.y,(paddle.tx-paddle.x)*paddle.side)*paddle.side);
+      ctx.fillStyle=color;ctx.textAlign='center';ctx.font='500 7px Outfit,sans-serif';ctx.fillText(surface.name,0,2.5);ctx.restore();
     });
     const balls=game.mode==='ready'?[{x:450,y:335,trail:[]}]:game.balls;
     balls.forEach(ball=>{
       if(!motion.matches) for(let j=1;j<ball.trail.length;j++) {
-        line([[ball.trail[j-1].x,ball.trail[j-1].y],[ball.trail[j].x,ball.trail[j].y]],`rgba(239,211,155,${j/ball.trail.length*.3})`,j/ball.trail.length*5);
+        ctx.globalAlpha=j/ball.trail.length*(ball.charge?.65:.3);
+        line([[ball.trail[j-1].x,ball.trail[j-1].y],[ball.trail[j].x,ball.trail[j].y]],ball.charge?ball.color:GOLD,j/ball.trail.length*(ball.charge?7:5));
       }
-      ctx.save();ctx.shadowColor='#ffdda4';ctx.shadowBlur=20;circle(ball.x,ball.y,R,'#fff6dd',0,true);ctx.restore();
+      ctx.globalAlpha=1;
+      ctx.save();ctx.shadowColor=ball.charge?ball.color:'#ffdda4';ctx.shadowBlur=20;circle(ball.x,ball.y,R,'#fff6dd',0,true);ctx.restore();
+      if(ball.octave)circle(ball.x,ball.y,R+4,SURFACES[1].color,1.5);
       circle(ball.x-2,ball.y-2,2,'#fff',0,true);
     });
     sparks.forEach(p=>{
@@ -625,7 +734,7 @@ async function startExhibition() {
       }
       ctx.restore();
     });
-    labels.forEach(label=>{ctx.globalAlpha=clamp(label.life,0,1);ctx.font='500 19px Outfit, sans-serif';ctx.textAlign='center';ctx.fillStyle=label.color;ctx.fillText(label.text,label.x,label.y);});ctx.globalAlpha=1;
+    labels.forEach(label=>{ctx.globalAlpha=clamp(label.life*1.5,0,1);ctx.font=`500 ${label.small?11:19}px Outfit,sans-serif`;ctx.textAlign='center';ctx.fillStyle=label.color;ctx.fillText(label.text,label.x,label.y);});ctx.globalAlpha=1;
     const remaining=1-game.time/ROUND;
     line([[205,H-6],[355,H-6]],'#c6a56525',1);
     if(game.mode!=='ready')line([[205,H-6],[205+remaining*150,H-6]],GOLD,2);

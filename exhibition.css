@@ -93,7 +93,7 @@ svg {
   transform:translateY(0);
 }
 .site-header {
-  height:110px;
+  height:88px;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -138,20 +138,11 @@ svg {
   font:22px var(--sans);
 }
 .hero {
+  --board-height:min(680px,calc(100svh - 224px));
   position:relative;
-  min-height:610px;
-  display:grid;
-  grid-template-columns:.65fr 1.35fr;
-  gap:15px;
+  max-width:calc(var(--board-height) * 490 / 568 + 80px);
   padding-bottom:24px;
   isolation:isolate;
-}
-.hero-copy {
-  position:relative;
-  z-index:2;
-  padding-top:80px;
-  width:100%;
-  pointer-events:none;
 }
 .eyebrow {
   font:400 11px/1.6 var(--sans);
@@ -162,58 +153,25 @@ svg {
   gap:13px;
   margin:0;
 }
-.hero-copy .eyebrow {
-  display:block;
-  white-space:nowrap;
-  font-size:10px;
-  letter-spacing:.22em;
-}
-.hero-copy .eyebrow>span {
-  display:block;
-  width:43px;
-  height:1px;
-  background:var(--gold);
-  opacity:.55;
-  margin-bottom:10px;
-}
-.hero h1 {
-  margin:15px 0 0;
-  font:500 clamp(100px,11vw,168px)/.9 var(--sans);
-  letter-spacing:-.045em;
-}
-.hero h1 em {
-  display:inline-block;
-  font:400 1.06em/.95 'Cormorant Garamond',serif;
-  letter-spacing:-.05em;
-  white-space:nowrap;
-  margin-left:2px;
-}
-.hero-invitation {
-  font:400 clamp(18px,1.7vw,25px)/1.8 var(--jp);
-  letter-spacing:.14em;
-  margin-top:33px;
-}
 /* The board and its music share one set of controls. */
-.hero-description { font:400 12px/2 var(--jp); color:var(--muted); margin:17px 0 0; letter-spacing:.035em; }
-.pinball { min-width:0; position:relative; padding-top:8px; }
-.game-heading { display:flex; align-items:center; justify-content:space-between; padding-inline:5%; }
-.game-heading>p { margin:0; color:var(--gold); font-size:10px; letter-spacing:.23em; }
+.pinball { min-width:0; position:relative; }
+.game-heading { min-height:44px; display:flex; align-items:center; justify-content:space-between; padding-inline:5%; }
+.game-tools { display:flex; align-items:center; }
+.game-tools button { min-width:44px; min-height:44px; padding:8px; color:var(--muted); font-size:11px; }
+.game-tools button:hover { color:var(--ink); }
 .game-score { display:flex; align-items:center; gap:17px; color:var(--gold); font-size:9px; line-height:1; letter-spacing:.08em; }
 .score-value { font-size:24px; font-weight:400; margin-left:5px; font-variant-numeric:tabular-nums; }
 .time-value { color:var(--ink); font-size:17px; font-variant-numeric:tabular-nums; border-left:1px solid var(--rule); padding-left:17px; }
-.pinball-board { position:relative; height:min(680px,calc(100svh - 200px)); }
+.pinball-board { position:relative; height:var(--board-height); }
 #pinball-canvas { width:100%; height:100%; display:block; touch-action:pan-y; }
 .pinball[data-mode=playing] #pinball-canvas { cursor:pointer; }
-.board-overlay { position:absolute; bottom:22%; left:12%; right:12%; text-align:center; pointer-events:none; background:radial-gradient(ellipse,#080909ee,#08090900 72%); padding:23px 0; }
-.start-note { margin:0; color:var(--ink); font:500 18px/1.6 var(--jp); letter-spacing:.08em; }
-.board-instruction { margin:7px 0 0; font:400 10px/1.6 var(--jp); color:#cfc2a7; }
+.board-overlay { position:absolute; bottom:22%; left:12%; right:12%; text-align:center; pointer-events:none; background:radial-gradient(ellipse,#080909ee,#08090900 72%); padding:23px 0; color:var(--gold); font-size:12px; letter-spacing:.22em; }
 .game-message { position:absolute; bottom:32%; left:10%; right:10%; text-align:center; color:#f0d39c; font:400 12px/1.8 var(--jp); pointer-events:none; text-shadow:0 2px 10px #000,0 0 12px #000; }
 .music-controls { display:flex; align-items:center; gap:28px; padding-inline:5%; }
 .music-preview { flex:1; min-width:0; }
-.music-preview>p { margin:0 0 9px; font:400 12px var(--jp); color:var(--gold); display:flex; align-items:center; justify-content:space-between; gap:6px; }
-.combo-value { font:400 8px var(--sans); letter-spacing:.08em; white-space:nowrap; }
+.combo-value { min-height:12px; margin:0 0 4px; font:400 9px/12px var(--sans); letter-spacing:.08em; color:var(--gold); }
 .sequence { display:grid; gap:6px; }
-.sequence-line { height:12px; display:grid; grid-template-columns:51px repeat(32,minmax(0,1fr)); align-items:center; gap:3px; color:var(--rose); }
+.sequence-line { height:12px; display:grid; grid-template-columns:51px repeat(32,minmax(0,1fr)); align-items:center; gap:2px; color:var(--rose); }
 .sequence-line:nth-child(2) { color:var(--green); }
 .sequence-line:nth-child(3) { color:#78c8d8; }
 .sequence-line>span { font:400 9px/1.2 var(--jp); }
@@ -225,14 +183,9 @@ svg {
 .flip-button:active { background:#c6a56527; transform:translateY(2px); }
 .pinball[data-mode=playing] .flip-button { font-size:19px; letter-spacing:.22em; }
 .pinball[data-mode=playing] .flip-button::after { content:'TAP / SPACE'; display:block; font:400 8px var(--sans); letter-spacing:.12em; margin-top:6px; }
-.game-footer { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 5% 0; }
-.game-footer p { font:400 10px/1.7 var(--jp); color:var(--muted); margin:0; }
-.game-footer>div { display:flex; flex-shrink:0; gap:4px; }
-.game-footer button { min-height:44px; padding:4px 8px; color:var(--muted); font:400 10px var(--jp); }
-.game-footer button:hover { color:var(--ink); }
 .round-result { position:absolute; inset:12% 10% 10%; background:#080909ec; display:flex; flex-direction:column; justify-content:center; align-items:center; border:1px solid var(--rule); padding:20px; text-align:center; backdrop-filter:blur(10px); }
 .result-eyebrow { font-size:9px; letter-spacing:.2em; color:var(--gold); margin:0 0 16px; }
-.result-title { font:400 19px/1.8 var(--jp); margin:0; letter-spacing:.05em; }
+.result-title { font:400 56px/1.2 var(--sans); margin:0; letter-spacing:-.025em; font-variant-numeric:tabular-nums; }
 .result-stats { font-size:10px; letter-spacing:.1em; color:var(--muted); margin:12px 0 21px; }
 .round-result button,.round-result .download-link { min-height:44px; font:400 12px var(--jp); padding:10px 18px; }
 .listen-button { color:var(--gold); border:1px solid var(--gold); min-width:190px; }
@@ -534,14 +487,6 @@ svg {
   letter-spacing:.07em;
   margin:24px 0;
 }
-.contact h2 em {
-  font-style:normal;
-  color:var(--gold);
-}
-.contact p:not(.eyebrow) {
-  font:400 13px/2 var(--jp);
-  color:var(--muted);
-}
 .contact-link {
   font-weight:300;
   font-size:clamp(19px,2.5vw,36px);
@@ -575,29 +520,9 @@ svg {
 .site-footer a:hover {
   color:var(--gold);
 }
-@media(min-width:1500px) {
-  .hero-copy {
-    padding-top:90px;
-  }
-  .hero {
-    min-height:670px;
-  }
-  .hero-invitation {
-    margin-top:38px;
-  }
-}
 @media(max-width:1000px) {
   .shell {
     width:calc(100% - 72px);
-  }
-  .hero h1 {
-    font-size:clamp(100px,11.6vw,145px);
-  }
-  .hero-copy {
-    padding-top:92px;
-  }
-  .hero {
-    min-height:580px;
   }
   .project-link {
     padding:0 22px;
@@ -639,10 +564,7 @@ svg {
 }
 @media(min-width:701px) and (max-width:1000px) {
   .music-controls { gap:12px; padding-inline:0; }
-  .game-footer { padding-inline:0; align-items:flex-start; }
-  .game-footer p { max-width:180px; padding-top:12px; }
   .flip-button { min-width:135px; padding-inline:10px; }
-  .combo-value { display:none; }
   .sequence-line { gap:2px; grid-template-columns:40px repeat(32,minmax(0,1fr)); }
 }
 @media(max-width:700px) {
@@ -678,70 +600,22 @@ svg {
     font-size:15px;
     margin-left:0;
   }
-  .hero {
-    height:auto;
-    min-height:0;
-    display:flex;
-    flex-direction:column;
-  }
-  .hero-copy {
-    width:100%;
-    padding-top:29px;
-  }
-  .hero-copy .eyebrow {
-    font-size:8px;
-    letter-spacing:.18em;
-  }
-  .hero-copy .eyebrow>span {
-    width:30px;
-    margin-bottom:8px;
-  }
-  .hero h1 {
-    font-size:clamp(87px,22vw,140px);
-    line-height:.83;
-    margin-top:15px;
-  }
-  .hero h1 br {
-    display:none;
-  }
-  .hero h1 em {
-    font-size:.73em;
-    display:block;
-    margin-left:23%;
-    margin-top:-3px;
-    line-height:1.1;
-  }
-  .hero-invitation {
-    font-size:14px;
-    letter-spacing:.12em;
-    margin:15px 0 0;
-  }
-  .hero { gap:0; padding-bottom:16px; }
-  .hero-description { font-size:11px; margin-top:11px; }
-  .hero-description br { display:none; }
-  .pinball { margin-top:25px; }
+  .hero { padding-bottom:20px; max-width:none; }
   .pinball-board { height:auto; aspect-ratio:490 / 568; margin-inline:-20px; }
   .game-heading { padding-inline:0; }
-  .game-heading>p { font-size:8px; }
   .score-value { font-size:21px; }
   .time-value { font-size:15px; }
-  .music-controls { padding-inline:0; gap:16px; flex-wrap:wrap; }
+  .music-controls { padding-inline:0; gap:12px; flex-wrap:wrap; }
   .music-preview { flex-basis:100%; }
-  .music-preview>p { font-size:11px; }
   .sequence-line { grid-template-columns:60px repeat(32,minmax(0,1fr)); gap:3px; }
   .sequence-line>span { font-size:10px; }
   .flip-button { width:100%; height:56px; font-size:13px; }
   .pinball[data-mode=playing] .flip-button { font-size:16px; }
   .pinball[data-mode=playing] .flip-button::after { display:inline; margin-left:20px; }
-  .game-footer { padding:3px 0 0; }
-  .game-footer p { font-size:10px; max-width:185px; }
-  .game-footer button { font-size:10px; padding-inline:6px; }
-  .start-note { font-size:15px; }
-  .board-instruction { font-size:9px; }
   .board-overlay { bottom:18%; padding:15px 0; }
   .game-message { font-size:10px; }
   .round-result { inset:2% 6%; padding:13px; }
-  .result-title { font-size:16px; }
+  .result-title { font-size:42px; }
   .result-eyebrow { font-size:8px; margin-bottom:9px; }
   .result-stats { font-size:8px; margin:8px 0 12px; }
   .project-strip {
@@ -960,5 +834,3 @@ svg {
     margin-left:0;
   }
 }
-
-.light-play:not([data-state=ready]) #light-canvas { cursor: auto; }

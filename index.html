@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080909">
-  <title>BEYTH STUDIO — 少し、遊んでいって。</title>
+  <title>BEYTH STUDIO</title>
   <meta name="description" content="小さなアプリを、つくっています。BEYTH STUDIOの作品と、ヒットで音をつくるピンボール。Tonight?・ライムの木・ギガ番長。">
   <meta name="google-site-verification" content="j7tbbjF2nMdNm3nH-FnFJfHTV13XMTFcjdo8QKFCyXQ">
   <link rel="canonical" href="https://beythstudio.com/">
-  <meta property="og:title" content="BEYTH STUDIO — 少し、遊んでいって。">
+  <meta property="og:title" content="BEYTH STUDIO">
   <meta property="og:description" content="小さなアプリを、つくっています。作品と、ヒットで音をつくるピンボール。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://beythstudio.com/">
@@ -33,33 +33,28 @@
   </header>
   <main>
     <section class="hero shell" aria-labelledby="hero-title">
-      <div class="hero-copy">
-        <p class="eyebrow"><span></span>INDEPENDENT APP STUDIO</p>
-        <h1 id="hero-title">PLAY<br><em>a little.</em></h1>
-        <p class="hero-invitation">少し、遊んでいって。</p>
-        <p class="hero-description">ヒットするたび、音が重なる。<br>できた曲は、持ち帰れます。</p>
-      </div>
+      <h1 id="hero-title" class="sr-only">BEYTH STUDIO</h1>
       <div class="pinball" data-state="loading" data-mode="ready" aria-label="ヒットで曲をつくるピンボール">
-        <div class="game-heading"><p>HIT A NOTE.</p><div class="game-score"><span>SCORE <b class="score-value">000</b></span><span class="time-value" aria-label="残り時間">00:30</span></div></div>
+        <div class="game-heading"><div class="game-score"><span>SCORE <b class="score-value">000</b></span><span class="time-value" aria-label="残り時間">00:30</span></div><div class="game-tools"><button class="pause-button" type="button" aria-label="一時停止" hidden>Ⅱ</button><button class="sound-button" type="button" aria-label="音を消す" aria-pressed="true">音 ON</button></div></div>
         <div class="pinball-board">
           <canvas id="pinball-canvas" aria-hidden="true"></canvas>
-          <div class="board-overlay"><p class="start-note">30秒、音で遊ぼう。</p><p class="board-instruction">球が下に来たら、タップ / SPACE</p></div>
+          <div class="board-overlay" hidden>PAUSED</div>
           <div class="round-result" hidden>
-            <p class="result-eyebrow">YOUR LITTLE TRACK</p>
-            <h2 class="result-title">あなたの30秒が、1曲に。</h2>
+            <p class="result-eyebrow">SCORE</p>
+            <h2 class="result-title">000</h2>
             <p class="result-stats"></p>
-            <button class="listen-button" type="button">できた曲を聴く ▷</button>
-            <button class="save-button" type="button">曲を書き出す ↓</button>
-            <a class="download-link" download hidden>曲を保存 ↓</a>
-            <button class="replay-button" type="button">もう一回遊ぶ ↻</button>
+            <button class="listen-button" type="button">再生 ▷</button>
+            <button class="save-button" type="button">保存 ↓</button>
+            <a class="download-link" download hidden>WAV ↓</a>
+            <button class="replay-button" type="button">REPLAY ↻</button>
           </div>
           <span class="game-message" aria-hidden="true"></span>
         </div>
         <div class="music-controls">
-          <div class="music-preview"><p>ヒットが、音になる。<span class="combo-value" aria-hidden="true">MAKE A LITTLE MUSIC</span></p><div class="sequence" role="img" aria-label="ヒットで増えるベース、メロディー、ビートの音"></div></div>
-          <button class="flip-button" type="button" disabled aria-describedby="game-help">音ありで、スタート ↗</button>
+          <div class="music-preview"><p class="combo-value" aria-hidden="true"></p><div class="sequence" role="img" aria-label="ヒットで増えるベース、メロディー、ビートの音"></div></div>
+          <button class="flip-button" type="button" disabled aria-describedby="game-help">START ↗</button>
         </div>
-        <div class="game-footer"><p id="game-help">タップ / SPACE で弾く · 4連続ヒットで、もう1球</p><div><button class="pause-button" type="button" hidden>一時停止</button><button class="sound-button" type="button" aria-label="音を消す" aria-pressed="true">音 ON</button></div></div>
+        <p id="game-help" class="sr-only">球が下に来たらタップかスペースキーで弾きます。左の壁は加速、上の壁は音程切替、右の壁はエコー。左フリッパーは低音、右はチャイム。4連続のアプリヒットでもう1球。</p>
         <p id="play-status" role="status" aria-live="polite" class="sr-only"></p>
         <noscript><p class="no-script">音で遊ぶには、JavaScriptを有効にしてください。</p></noscript>
       </div>
@@ -93,7 +88,7 @@
         </div>
       </article>
     </section>
-    <section class="contact shell" id="contact" aria-labelledby="contact-heading"><div><p class="eyebrow">SAY HELLO</p><h2 id="contact-heading">ご感想も、<br><em>ご相談も。</em></h2><p>アプリのこと、ご感想、制作のご相談。<br>お話を聞かせてください。</p></div><a class="contact-link" href="mailto:hello@beythstudio.com">hello@beythstudio.com <span aria-hidden="true">↗</span></a></section>
+    <section class="contact shell" id="contact" aria-labelledby="contact-heading"><h2 id="contact-heading">お問い合わせ</h2><a class="contact-link" href="mailto:hello@beythstudio.com">hello@beythstudio.com <span aria-hidden="true">↗</span></a></section>
   </main>
   <footer class="site-footer shell"><span>© 2026 BEYTH STUDIO</span><a href="privacy.html">プライバシーポリシー</a><a href="#top">BACK TO TOP ↑</a></footer>
 </body>
