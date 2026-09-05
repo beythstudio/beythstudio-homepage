@@ -234,11 +234,11 @@ svg {
 .result-eyebrow { font-size:9px; letter-spacing:.2em; color:var(--gold); margin:0 0 16px; }
 .result-title { font:400 19px/1.8 var(--jp); margin:0; letter-spacing:.05em; }
 .result-stats { font-size:10px; letter-spacing:.1em; color:var(--muted); margin:12px 0 21px; }
-.round-result button { min-height:44px; font:400 12px var(--jp); padding:10px 18px; }
+.round-result button,.round-result .download-link { min-height:44px; font:400 12px var(--jp); padding:10px 18px; }
 .listen-button { color:var(--gold); border:1px solid var(--gold); min-width:190px; }
-.round-result .save-button { margin-top:4px; color:var(--gold); }
+.round-result .save-button,.round-result .download-link { margin-top:4px; color:var(--gold); }
 .round-result .replay-button { margin-top:5px; color:var(--muted); font-size:11px; }
-.round-result button:hover { color:var(--ink); }
+.round-result button:hover,.round-result .download-link:hover { color:var(--ink); }
 .pinball[data-mode=paused] #pinball-canvas { opacity:.4; }
 .pinball[data-state=unavailable] #play-status { position:static; width:auto; height:auto; clip-path:none; padding:20px; white-space:normal; color:var(--muted); }
 .no-script { color:var(--muted); font-size:12px; text-align:center; }

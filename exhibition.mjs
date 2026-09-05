@@ -72,7 +72,7 @@ function hit(game, index, ball, nx, ny) {
   bumper.flash=1;
   bumper.hop=1;
   const recorded=addNote(game,index,(Math.atan2(ny,nx)+Math.PI)/TAU,speed);
-  game.events.push({type:'hit',track:index,x:ball.x,y:ball.y,points,...recorded});
+  game.events.push({type:'hit',track:index,x:ball.x,y:ball.y,points,nx,ny,...recorded});
   if (!game.bonus && game.combo>=4) {
     game.bonus=true;
     launch(game,true);
@@ -243,11 +243,13 @@ async function startExhibition() {
   const timer=root.querySelector('.time-value'), score=root.querySelector('.score-value');
   const combo=root.querySelector('.combo-value');
   const listen=root.querySelector('.listen-button'), save=root.querySelector('.save-button');
+  const download=root.querySelector('.download-link');
   const motion=matchMedia('(prefers-reduced-motion: reduce)');
   let game=newGame(), visible=true, frame=0, last=0, visualTime=0;
   let audio, noise, muted=false, playingSong=false, audioTimer, audioEpoch=0, nextStep=0;
-  let exporting=false, exportUrl, pauseMode='playing', sparks=[], labels=[], previousStep=-1;
+  let exportUrl, pauseMode='playing', sparks=[], bursts=[], labels=[], previousStep=-1;
   let songSteps=Infinity;
+  let pendingSuspend=Promise.resolve();
   const voices=new Set();
   const images=['icon.png','assets/rhyme-tree-icon-1024.png','assets/giga-bancho-icon.png'].map(src=>{
     const image=new Image(); image.src=src; image.addEventListener('load',draw); return image;
@@ -291,6 +293,8 @@ async function startExhibition() {
     if(muted) return false;
     try {
       if(!audio) {audio=new AudioContext();noise=makeNoise(audio);}
+      await pendingSuspend;
+      if(muted)return false;
       await audio.resume(); return audio.state==='running';
     } catch {
       muted=true; announce('音を再生できませんでした。遊んでできた曲は、終了後に保存できます。'); update(); return false;
@@ -305,7 +309,7 @@ async function startExhibition() {
     clearInterval(audioTimer); audioTimer=null;
     for(const source of voices)source.stop();
     voices.clear();
-    if(audio?.state==='running') audio.suspend().catch(()=>{});
+    if(audio?.state==='running') pendingSuspend=audio.suspend().catch(()=>{});
   }
   function runAudio() {
     clearInterval(audioTimer);
@@ -331,10 +335,22 @@ async function startExhibition() {
   function feedback(event) {
     if(event.type==='hit') {
       if(!motion.matches) {
-        for(let i=0;i<15;i++) {
-          const angle=Math.random()*TAU, speed=40+Math.random()*180;
-          sparks.push({x:event.x,y:event.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:.6,color:COLORS[event.track]});
+        const bumper=game.bumpers[event.track];
+        bursts.push({x:bumper.x,y:bumper.y,track:event.track,life:.85,total:.85,strength:Math.min(1.6,1+game.combo*.045)});
+        const direction=Math.atan2(event.ny,event.nx);
+        for(let i=0;i<30;i++) {
+          const signature=i>=22;
+          const angle=signature?i/8*TAU+direction:direction+(Math.random()-.5)*3.6;
+          const speed=signature?80+Math.random()*85:90+Math.random()*260;
+          const life=signature?.9+Math.random()*.35:.35+Math.random()*.4;
+          sparks.push({x:signature?bumper.x+Math.cos(angle)*48:event.x,y:signature?bumper.y+Math.sin(angle)*48:event.y,
+            vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed-(signature?40:0),
+            life,total:life,color:COLORS[event.track],kind:signature?event.track:-1,
+            size:signature?7+Math.random()*6:1+Math.random(),angle,spin:(Math.random()-.5)*3,glyph:i%2===0?'leaf':'aiueo'[i%5]});
         }
+        // A dense combo stays readable, including on a phone.
+        if(sparks.length>300)sparks.splice(0,sparks.length-300);
+        if(bursts.length>12)bursts.shift();
       }
       labels.push({x:event.x,y:event.y-35,text:`+${event.points}`,life:1,color:COLORS[event.track]});
       if(!muted && audio?.state==='running') voice(event.track,event.note,audio.currentTime+.005,.9);
@@ -355,7 +371,8 @@ async function startExhibition() {
     result.hidden=false;
     root.querySelector('.result-title').textContent=game.hits?'あなたの30秒が、1曲に。':'次は、最初のヒットを。';
     root.querySelector('.result-stats').textContent=`${game.score} SCORE · ${game.hits} HITS · BEST ${game.bestCombo} COMBO`;
-    listen.hidden=save.hidden=!game.hits;
+    listen.hidden=save.hidden=!game.hits;download.hidden=true;
+    if(game.hits)prepareSong(game);
     announce(game.hits?`終了。${game.hits}ヒットで曲ができました。聴くか、保存できます。`:'終了。もう一回遊べます。');
     action.hidden=true; update(); sequence();
     if(game.hits && !muted) {
@@ -406,9 +423,10 @@ async function startExhibition() {
     if(game.mode==='playing') {event.preventDefault();if(!event.repeat) flip(game);}
   });
   root.querySelector('.replay-button').addEventListener('click',()=>{
-    stopAudio();playingSong=false; game=newGame(); sparks=[];labels=[];
+    stopAudio();playingSong=false; game=newGame(); sparks=[];bursts=[];labels=[];
     result.hidden=true;action.hidden=false;action.disabled=false;
-    if(!exporting)save.textContent='曲を保存 ↓';
+    if(exportUrl) {URL.revokeObjectURL(exportUrl);exportUrl=null;}
+    save.textContent='曲を書き出す ↓';download.hidden=true;
     sequence();play();action.focus({preventScroll:true});
   });
   sound.addEventListener('click',async()=>{
@@ -426,25 +444,26 @@ async function startExhibition() {
     } else {stopAudio();sequence();}
     update();draw();
   });
-  save.addEventListener('click',async()=>{
-    if(exporting || !game.hits) return;
-    exporting=true;save.disabled=true;save.textContent='曲を書き出しています…';
+  // Render at the end of the round so Save remains a direct user gesture.
+  async function prepareSong(round) {
+    save.hidden=false;download.hidden=true;
+    save.disabled=true;save.textContent='曲を書き出しています…';
     try {
-      const savedScore=game.score;
-      const wav=await renderSong(game.pattern);
-      if(exportUrl) URL.revokeObjectURL(exportUrl);
+      const wav=await renderSong(round.pattern);
+      if(round!==game)return;
+      if(exportUrl)URL.revokeObjectURL(exportUrl);
       exportUrl=URL.createObjectURL(new Blob([wav],{type:'audio/wav'}));
-      const link=document.createElement('a');
-      link.href=exportUrl;link.download=`beyth-play-${savedScore}-${Date.now()}.wav`;
-      document.body.append(link);link.click();link.remove();
-      announce('曲を書き出しました。ダウンロード先を確認してください。');
-      save.textContent='もう一度保存 ↓';
+      download.href=exportUrl;download.download=`beyth-play-${round.score}-${Date.now()}.wav`;
+      download.hidden=false;save.hidden=true;
     } catch(error) {
-      announce('曲を書き出せませんでした。このページで聴くか、もう一度保存してください。');
-      save.textContent='曲を保存 ↓';
+      if(round!==game)return;
+      announce('曲を書き出せませんでした。保存ボタンでもう一度試せます。');
+      save.textContent='もう一度書き出す ↻';
       console.error('Song export:',error);
-    } finally {exporting=false;save.disabled=false;}
-  });
+    } finally {if(round===game)save.disabled=false;}
+  }
+  save.addEventListener('click',()=>{if(game.hits)prepareSong(game);});
+  download.addEventListener('click',()=>announce('保存を開始しました。ダウンロード先を確認してください。'));
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseGame();else{last=performance.now();schedule();}});
   window.addEventListener('pagehide',()=>{pauseGame();if(exportUrl)URL.revokeObjectURL(exportUrl);});
   new IntersectionObserver(entries=>{
@@ -508,15 +527,45 @@ async function startExhibition() {
     ctx.save();ctx.translate(280,91);ctx.rotate(-.42);
     ctx.beginPath();ctx.ellipse(0,0,22,8,0,0,TAU);ctx.strokeStyle='#c6a56570';ctx.lineWidth=1;ctx.stroke();
     circle(0,0,15,'#c6a56570');ctx.restore();
+    bursts.forEach(burst=>{
+      const progress=1-burst.life/burst.total, fade=(1-progress)**2;
+      const radius=46+(1-(1-progress)**3)*72*burst.strength;
+      const color=COLORS[burst.track];
+      ctx.save();ctx.globalCompositeOperation='lighter';
+      const bloom=ctx.createRadialGradient(burst.x,burst.y,20,burst.x,burst.y,radius+22);
+      bloom.addColorStop(0,color+'00');bloom.addColorStop(.38,color+'30');bloom.addColorStop(1,color+'00');
+      ctx.globalAlpha=fade;ctx.fillStyle=bloom;ctx.fillRect(burst.x-radius-24,burst.y-radius-24,(radius+24)*2,(radius+24)*2);
+      ctx.shadowColor=color;ctx.shadowBlur=12;
+      circle(burst.x,burst.y,radius,color,1.8*fade+.3);
+      circle(burst.x,burst.y,46+progress*44,color+'80',.8);
+      if(burst.track===2 && progress<.48) {
+        for(let i=0;i<6;i++) {
+          const angle=i/6*TAU+progress*.35;
+          const ray=(distance,twist=0)=>[burst.x+Math.cos(angle+twist)*distance,burst.y+Math.sin(angle+twist)*distance];
+          line([ray(48),ray(62,.12),ray(68,-.05),ray(radius+12,.04)],color,1.8);
+        }
+      } else {
+        for(let i=0;i<3;i++) {
+          ctx.beginPath();
+          const angle=i/3*TAU+progress*(burst.track===0?1:-1);
+          ctx.arc(burst.x,burst.y,radius+7,angle,angle+.58);
+          ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+        }
+      }
+      ctx.restore();
+    });
     game.bumpers.forEach((bumper,i)=>{
       const idle=game.mode==='ready'&&!motion.matches?Math.sin(visualTime*1.4+i*2)*2:0;
       const x=bumper.x,y=bumper.y+idle,r=bumper.radius;
       const pulse=bumper.flash;
-      ctx.save();ctx.shadowColor=COLORS[i];ctx.shadowBlur=12+pulse*19;
+      ctx.save();ctx.translate(x,y);
+      if(!motion.matches) {const pop=Math.sin((1-pulse)*Math.PI*2)*pulse;ctx.scale(1+pop*.1,1-pop*.07);}
+      ctx.translate(-x,-y);
+      ctx.save();ctx.shadowColor=COLORS[i];ctx.shadowBlur=12+pulse*34;
       circle(x,y,r+6,COLORS[i]+(pulse?'b0':'65'),1.4);
       ctx.restore();
       circle(x,y+5,r+2,'#3f3522',2);
-      circle(x,y,r+1,'#e1c48a',1.3);
+      circle(x,y,r+1,pulse>.65?'#fff4d8':'#e1c48a',pulse>.65?2.4:1.3);
       ctx.save();
       ctx.translate(x,y);ctx.rotate(motion.matches?0:Math.sin(bumper.hop*TAU)*bumper.hop*.15);
       ctx.beginPath();ctx.arc(0,0,r-5,0,TAU);ctx.clip();
@@ -524,6 +573,7 @@ async function startExhibition() {
       if(image.complete && image.naturalWidth)ctx.drawImage(image,-r+5,-r+5,(r-5)*2,(r-5)*2);
       ctx.restore();
       if(pulse>.03)circle(x,y,r+7+(1-pulse)*28,COLORS[i]+Math.round(pulse*130).toString(16).padStart(2,'0'),1);
+      ctx.restore();
       const eyeY=y-r-20;
       circle(x-7,eyeY,2.5,COLORS[i],0,true);circle(x+7,eyeY,2.5,COLORS[i],0,true);
       ctx.beginPath();ctx.arc(x,eyeY+1,pulse?9:5,0,Math.PI);ctx.strokeStyle=COLORS[i]+'bb';ctx.lineWidth=1.2;ctx.stroke();
@@ -546,8 +596,33 @@ async function startExhibition() {
       ctx.save();ctx.shadowColor='#ffdda4';ctx.shadowBlur=20;circle(ball.x,ball.y,R,'#fff6dd',0,true);ctx.restore();
       circle(ball.x-2,ball.y-2,2,'#fff',0,true);
     });
-    sparks.forEach(p=>circle(p.x,p.y,1.1,p.color+Math.round(clamp(p.life/.6,0,1)*255).toString(16).padStart(2,'0'),0,true));
-    labels.forEach(label=>{ctx.globalAlpha=clamp(label.life,0,1);ctx.font='500 17px Outfit, sans-serif';ctx.textAlign='center';ctx.fillStyle=label.color;ctx.fillText(label.text,label.x,label.y);});ctx.globalAlpha=1;
+    sparks.forEach(p=>{
+      ctx.save();ctx.globalAlpha=Math.min(1,p.life/p.total*1.5);
+      ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.fillStyle=p.color;ctx.strokeStyle=p.color;
+      if(p.kind===-1) {
+        ctx.rotate(Math.atan2(p.vy,p.vx)-p.angle);
+        ctx.shadowColor=p.color;ctx.shadowBlur=7;
+        line([[0,0],[-Math.min(14,Math.hypot(p.vx,p.vy)*.045),0]],p.color,p.size);
+        circle(0,0,p.size*.65,'#fff3db',0,true);
+      } else if(p.kind===0) {
+        const r=p.size;
+        ctx.beginPath();ctx.moveTo(0,r*.65);
+        ctx.bezierCurveTo(-r*1.5,-r*.25,-r*.65,-r*1.2,0,-r*.45);
+        ctx.bezierCurveTo(r*.65,-r*1.2,r*1.5,-r*.25,0,r*.65);
+        ctx.fill();
+      } else if(p.kind===1 && p.glyph==='leaf') {
+        ctx.beginPath();ctx.ellipse(0,0,p.size,p.size*.42,0,0,TAU);ctx.fill();
+        line([[-p.size*.7,0],[p.size*.7,0]],'#eefbd6',.65);
+      } else if(p.kind===1) {
+        ctx.font=`italic ${p.size*2.1}px 'Cormorant Garamond',serif`;ctx.textAlign='center';ctx.fillText(p.glyph,0,4);
+      } else {
+        const r=p.size;
+        line([[-r*.3,-r],[r*.3,-r*.12],[-r*.18,r*.12],[r*.3,r]],p.color,2);
+        ctx.shadowColor=p.color;ctx.shadowBlur=10;circle(0,0,1.5,'#e2fcff',0,true);
+      }
+      ctx.restore();
+    });
+    labels.forEach(label=>{ctx.globalAlpha=clamp(label.life,0,1);ctx.font='500 19px Outfit, sans-serif';ctx.textAlign='center';ctx.fillStyle=label.color;ctx.fillText(label.text,label.x,label.y);});ctx.globalAlpha=1;
     const remaining=1-game.time/ROUND;
     line([[205,514],[355,514]],'#c6a56525',1);
     if(game.mode!=='ready')line([[205,514],[205+remaining*150,514]],GOLD,2);
@@ -563,7 +638,8 @@ async function startExhibition() {
       stepGame(game,dt);
       game.events.splice(0).forEach(feedback);
       game.balls.forEach(ball=>{ball.trail.push({x:ball.x,y:ball.y});if(ball.trail.length>14)ball.trail.shift();});
-      sparks=sparks.filter(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=110*dt;p.life-=dt;return p.life>0;});
+      sparks=sparks.filter(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=Math.exp(-dt*1.3);p.vy+=70*dt;p.angle+=p.spin*dt;p.life-=dt;return p.life>0;});
+      bursts=bursts.filter(burst=>{burst.life-=dt;return burst.life>0;});
       labels=labels.filter(label=>{if(!motion.matches)label.y-=30*dt;label.life-=dt;return label.life>0;});
       update();
     }
