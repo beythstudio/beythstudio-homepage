@@ -100,27 +100,35 @@ svg {
 }
 .brand {
   display:flex;
-  gap:17px;
+  gap:14px;
   align-items:center;
-  font-size:21px;
-  letter-spacing:.055em;
   white-space:nowrap;
 }
 .brand-symbol {
   display:block;
-  width:48px;
-  height:48px;
-  position:relative;
-  overflow:hidden;
+  width:64px;
+  height:52px;
+  flex-shrink:0;
   mix-blend-mode:screen;
 }
-.brand-symbol img {
-  position:absolute;
-  width:75px;
-  max-width:none;
-  height:75px;
-  left:-14px;
-  top:-7px;
+.brand-symbol image {
+  filter:contrast(1.4) saturate(.85);
+}
+.brand-wordmark {
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  line-height:1;
+}
+.brand-wordmark>span:first-child {
+  font-size:22px;
+  font-weight:500;
+  letter-spacing:.19em;
+}
+.brand-wordmark>span:last-child {
+  font-size:9px;
+  letter-spacing:.48em;
+  color:var(--gold);
 }
 .site-header nav {
   display:flex;
@@ -578,19 +586,22 @@ svg {
     height:80px;
   }
   .brand {
-    font-size:13px;
-    gap:8px;
-    letter-spacing:.045em;
+    gap:9px;
   }
   .brand-symbol {
-    width:31px;
+    width:44px;
     height:36px;
   }
-  .brand-symbol img {
-    width:50px;
-    height:50px;
-    left:-10px;
-    top:-3px;
+  .brand-wordmark {
+    gap:5px;
+  }
+  .brand-wordmark>span:first-child {
+    font-size:15px;
+    letter-spacing:.17em;
+  }
+  .brand-wordmark>span:last-child {
+    font-size:7px;
+    letter-spacing:.37em;
   }
   .site-header nav {
     gap:19px;
@@ -810,9 +821,6 @@ svg {
   font:400 11px var(--jp);
   color:var(--muted);
   align-self:center;
-}
-.brand-symbol img {
-  filter:contrast(1.4);
 }
 @media(min-width:701px) and (max-width:1100px) {
   .project-link {
