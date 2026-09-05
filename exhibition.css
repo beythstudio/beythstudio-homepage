@@ -141,7 +141,7 @@ svg {
   position:relative;
   min-height:610px;
   display:grid;
-  grid-template-columns:.82fr 1.18fr;
+  grid-template-columns:.65fr 1.35fr;
   gap:15px;
   padding-bottom:24px;
   isolation:isolate;
@@ -178,7 +178,7 @@ svg {
 }
 .hero h1 {
   margin:15px 0 0;
-  font:500 clamp(110px,12.2vw,188px)/.9 var(--sans);
+  font:500 clamp(100px,11vw,168px)/.9 var(--sans);
   letter-spacing:-.045em;
 }
 .hero h1 em {
@@ -198,26 +198,26 @@ svg {
 .pinball { min-width:0; position:relative; padding-top:8px; }
 .game-heading { display:flex; align-items:center; justify-content:space-between; padding-inline:5%; }
 .game-heading>p { margin:0; color:var(--gold); font-size:10px; letter-spacing:.23em; }
-.game-score { display:flex; align-items:center; gap:17px; color:var(--gold); font-size:9px; letter-spacing:.08em; }
+.game-score { display:flex; align-items:center; gap:17px; color:var(--gold); font-size:9px; line-height:1; letter-spacing:.08em; }
 .score-value { font-size:24px; font-weight:400; margin-left:5px; font-variant-numeric:tabular-nums; }
 .time-value { color:var(--ink); font-size:17px; font-variant-numeric:tabular-nums; border-left:1px solid var(--rule); padding-left:17px; }
-.pinball-board { position:relative; height:440px; }
+.pinball-board { position:relative; height:min(680px,calc(100svh - 200px)); }
 #pinball-canvas { width:100%; height:100%; display:block; touch-action:pan-y; }
 .pinball[data-mode=playing] #pinball-canvas { cursor:pointer; }
-.board-overlay { position:absolute; bottom:20%; left:12%; right:12%; text-align:center; pointer-events:none; background:radial-gradient(ellipse,#080909ee,#08090900 72%); padding:23px 0; }
+.board-overlay { position:absolute; bottom:22%; left:12%; right:12%; text-align:center; pointer-events:none; background:radial-gradient(ellipse,#080909ee,#08090900 72%); padding:23px 0; }
 .start-note { margin:0; color:var(--ink); font:500 18px/1.6 var(--jp); letter-spacing:.08em; }
 .board-instruction { margin:7px 0 0; font:400 10px/1.6 var(--jp); color:#cfc2a7; }
-.game-message { position:absolute; bottom:29%; left:10%; right:10%; text-align:center; color:#f0d39c; font:400 12px/1.8 var(--jp); pointer-events:none; text-shadow:0 2px 10px #000,0 0 12px #000; }
+.game-message { position:absolute; bottom:32%; left:10%; right:10%; text-align:center; color:#f0d39c; font:400 12px/1.8 var(--jp); pointer-events:none; text-shadow:0 2px 10px #000,0 0 12px #000; }
 .music-controls { display:flex; align-items:center; gap:28px; padding-inline:5%; }
 .music-preview { flex:1; min-width:0; }
 .music-preview>p { margin:0 0 9px; font:400 12px var(--jp); color:var(--gold); display:flex; align-items:center; justify-content:space-between; gap:6px; }
 .combo-value { font:400 8px var(--sans); letter-spacing:.08em; white-space:nowrap; }
 .sequence { display:grid; gap:6px; }
-.sequence-line { display:grid; grid-template-columns:51px repeat(32,minmax(0,1fr)); align-items:center; gap:3px; color:var(--rose); }
+.sequence-line { height:12px; display:grid; grid-template-columns:51px repeat(32,minmax(0,1fr)); align-items:center; gap:3px; color:var(--rose); }
 .sequence-line:nth-child(2) { color:var(--green); }
 .sequence-line:nth-child(3) { color:#78c8d8; }
-.sequence-line>span { font:400 9px var(--jp); }
-.sequence-line i { display:block; aspect-ratio:1; min-width:2px; border-radius:50%; background:#33352f; }
+.sequence-line>span { font:400 9px/1.2 var(--jp); }
+.sequence-line i { display:block; width:min(100%,6px); aspect-ratio:1; min-width:2px; justify-self:center; border-radius:50%; background:#33352f; }
 .sequence-line i.on { background:currentColor; }
 .sequence-line i.current { outline:1px solid currentColor; outline-offset:2px; }
 .flip-button { flex-shrink:0; min-width:158px; height:68px; border:1px solid var(--gold); padding:10px 18px; color:#f1d399; font:400 12px var(--jp); letter-spacing:.045em; touch-action:manipulation; transition:background .15s,transform .1s; }
@@ -579,7 +579,6 @@ svg {
   .hero-copy {
     padding-top:90px;
   }
-  .pinball-board { height:490px; }
   .hero {
     min-height:670px;
   }
@@ -639,7 +638,6 @@ svg {
   }
 }
 @media(min-width:701px) and (max-width:1000px) {
-  .pinball-board { height:410px; }
   .music-controls { gap:12px; padding-inline:0; }
   .game-footer { padding-inline:0; align-items:flex-start; }
   .game-footer p { max-width:180px; padding-top:12px; }
@@ -722,7 +720,7 @@ svg {
   .hero-description { font-size:11px; margin-top:11px; }
   .hero-description br { display:none; }
   .pinball { margin-top:25px; }
-  .pinball-board { height:auto; aspect-ratio:1.08; margin-inline:-14px; }
+  .pinball-board { height:auto; aspect-ratio:490 / 568; margin-inline:-20px; }
   .game-heading { padding-inline:0; }
   .game-heading>p { font-size:8px; }
   .score-value { font-size:21px; }

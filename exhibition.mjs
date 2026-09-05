@@ -2,17 +2,19 @@ const TAU = Math.PI * 2;
 export const STEP = 60 / 96 / 2;
 export const STEPS = 32;
 export const ROUND = 30;
-const W = 560, H = 520, R = 8;
+const W = 560, H = 590, R = 10;
+const FLIPPER_Y = 532, FLIPPER_REACH = 106;
+const VIEW_X = 35, VIEW_Y = 22, VIEW_WIDTH = 490, VIEW_HEIGHT = H - VIEW_Y;
 const GOLD = '#c6a565';
 const COLORS = ['#e58b9f', '#b5d889', '#78c8d8'];
 const NOTES = [62, 65, 67, 69, 72, 74, 77];
 const BUMPERS = [{x:183,y:177}, {x:370,y:183}, {x:275,y:305}];
 const RAILS = [
-  [80,400,63,152], [63,152,94,87], [94,87,161,46], [161,46,400,46],
-  [400,46,466,87], [466,87,497,152], [497,152,480,400],
-  [80,400,161,462], [480,400,399,462],
-  [94,360,149,411], [149,411,113,411], [113,411,94,360],
-  [466,360,411,411], [411,411,447,411], [447,411,466,360]
+  [80,470,63,152], [63,152,94,87], [94,87,161,46], [161,46,400,46],
+  [400,46,466,87], [466,87,497,152], [497,152,480,470],
+  [80,470,161,FLIPPER_Y], [480,470,399,FLIPPER_Y],
+  [94,430,149,481], [149,481,113,481], [113,481,94,430],
+  [466,430,411,481], [411,481,447,481], [447,481,466,430]
 ];
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -84,12 +86,12 @@ function hit(game, index, ball, nx, ny) {
 
 export function flippers(game) {
   const age=game.time-game.lastFlip;
-  const lift = age < 0 ? 0 : age < .075 ? age/.075 : age < .135 ? 1 : clamp(1-(age-.135)/.13,0,1);
+  const lift = age < 0 ? 0 : age < .065 ? age/.065 : age < .205 ? 1 : clamp(1-(age-.205)/.14,0,1);
   game.flip=lift;
   const angle=.38-lift*.83;
   return [
-    {x:161,y:462,tx:161+99*Math.cos(angle),ty:462+99*Math.sin(angle),side:1},
-    {x:399,y:462,tx:399-99*Math.cos(angle),ty:462+99*Math.sin(angle),side:-1}
+    {x:161,y:FLIPPER_Y,tx:161+FLIPPER_REACH*Math.cos(angle),ty:FLIPPER_Y+FLIPPER_REACH*Math.sin(angle),side:1},
+    {x:399,y:FLIPPER_Y,tx:399-FLIPPER_REACH*Math.cos(angle),ty:FLIPPER_Y+FLIPPER_REACH*Math.sin(angle),side:-1}
   ];
 }
 
@@ -126,7 +128,7 @@ export function stepGame(game, delta) {
       for(const [ax,ay,bx,by] of RAILS) segmentCollision(ball,ax,ay,bx,by,R+2,.91);
       for(const paddle of paddles) {
         const collision=segmentCollision(ball,paddle.x,paddle.y,paddle.tx,paddle.ty,R+7,.64);
-        if(collision && collision.ny<.3 && game.time-game.lastFlip<.16) {
+        if(collision && collision.ny<.3 && game.time-game.lastFlip<.24) {
           ball.vy=-680-collision.along*110;
           ball.vx=paddle.side*(145+collision.along*300);
           game.events.push({type:'flip',x:ball.x,y:ball.y});
@@ -388,12 +390,13 @@ async function startExhibition() {
   async function play() {
     if(game.mode==='finished') return;
     if(game.mode==='ready' || game.mode==='paused') {
-      const bounds=root.getBoundingClientRect();
-      if(bounds.top<0 || bounds.bottom>innerHeight) root.scrollIntoView({block:'center',behavior:motion.matches?'instant':'smooth'});
       songSteps=Infinity;
       if(game.mode==='ready') {flip(game); announce('スタート。球が下に来たらタップかスペースで弾いてください。');}
       else game.mode=pauseMode;
-      last=performance.now(); update(); schedule();
+      last=performance.now(); update();
+      const bounds=root.getBoundingClientRect();
+      if(bounds.top<0 || bounds.bottom>innerHeight) root.scrollIntoView({block:'center',behavior:motion.matches?'instant':'smooth'});
+      schedule();
       await enableAudio();
       if(game.mode==='playing') runAudio();
     } else flip(game);
@@ -500,8 +503,8 @@ async function startExhibition() {
       canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);
     }
     ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,width,height);
-    const scale=Math.min(width/W,height/H);
-    ctx.translate((width-W*scale)/2,(height-H*scale)/2);ctx.scale(scale,scale);
+    const scale=Math.min(width/VIEW_WIDTH,height/VIEW_HEIGHT);
+    ctx.translate((width-VIEW_WIDTH*scale)/2-VIEW_X*scale,(height-VIEW_HEIGHT*scale)/2-VIEW_Y*scale);ctx.scale(scale,scale);
     ctx.lineCap='round';ctx.lineJoin='round';
     // One open table, drawn from the same rails used by the physics.
     const glow=ctx.createRadialGradient(280,240,10,280,240,260);
@@ -514,14 +517,14 @@ async function startExhibition() {
     ctx.save();ctx.translate(280,244);ctx.rotate(-.36);
     [155,201].forEach((r,i)=>{ctx.beginPath();ctx.ellipse(0,0,r,r*.8,0,0,TAU);ctx.strokeStyle=i?'#c6a56518':'#c6a56525';ctx.lineWidth=.7;ctx.stroke();});
     ctx.restore();
-    const outline=[[161,462],[80,400],[63,152],[94,87],[161,46],[400,46],[466,87],[497,152],[480,400],[399,462]];
+    const outline=[[161,FLIPPER_Y],[80,470],[63,152],[94,87],[161,46],[400,46],[466,87],[497,152],[480,470],[399,FLIPPER_Y]];
     ctx.save();ctx.shadowColor='#b6934850';ctx.shadowBlur=14;
     line(outline,'#d1ad64',2.1,true);ctx.restore();
     const inner=outline.map(([x,y])=>[280+(x-280)*.965,260+(y-260)*.957]);
     line(inner,'#e4cb866a',.8,true);
     RAILS.slice(9).forEach(([a,b,c,d])=>line([[a,b],[c,d]],'#cfac6775',1.2));
     // Decorative screws and a tiny orbit mark stay still when reduced motion is requested.
-    [[101,113],[459,113],[84,338],[476,338],[161,462],[399,462]].forEach(([x,y])=>{
+    [[101,113],[459,113],[84,390],[476,390],[161,FLIPPER_Y],[399,FLIPPER_Y]].forEach(([x,y])=>{
       circle(x,y,5,'#c6a56585');line([[x-1.5,y],[x+1.5,y]],'#c6a565a0');
     });
     ctx.save();ctx.translate(280,91);ctx.rotate(-.42);
@@ -624,8 +627,8 @@ async function startExhibition() {
     });
     labels.forEach(label=>{ctx.globalAlpha=clamp(label.life,0,1);ctx.font='500 19px Outfit, sans-serif';ctx.textAlign='center';ctx.fillStyle=label.color;ctx.fillText(label.text,label.x,label.y);});ctx.globalAlpha=1;
     const remaining=1-game.time/ROUND;
-    line([[205,514],[355,514]],'#c6a56525',1);
-    if(game.mode!=='ready')line([[205,514],[205+remaining*150,514]],GOLD,2);
+    line([[205,H-6],[355,H-6]],'#c6a56525',1);
+    if(game.mode!=='ready')line([[205,H-6],[205+remaining*150,H-6]],GOLD,2);
   }
   function schedule() {
     if(!frame && visible && !document.hidden) frame=requestAnimationFrame(render);

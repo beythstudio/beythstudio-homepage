@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync, existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
-import {newGame, flip, stepGame, encodeWav, ROUND, STEPS} from '../exhibition.mjs';
+import {newGame, flip, flippers, stepGame, encodeWav, ROUND, STEPS} from '../exhibition.mjs';
 
 // Play a real round through the same physics used by pointer and Space input.
 function play(tap) {
@@ -29,6 +29,13 @@ assert.notDeepEqual(played.pattern,idle.pattern,'The player must change the resu
 const paused=newGame(.2);flip(paused);paused.mode='paused';
 const snapshot=JSON.stringify(paused);stepGame(paused,3);
 assert.equal(JSON.stringify(paused),snapshot,'Pausing must preserve the clock, ball and song');
+// A ball arriving just over 200 ms after a tap should still get a clean lift.
+const catchGame=newGame(.2);flip(catchGame);catchGame.time=.21;
+const left=flippers(catchGame)[0];
+catchGame.balls=[{x:(left.x+left.tx)/2,y:(left.y+left.ty)/2-16,vx:0,vy:220,trail:[],contacts:[-1,-1,-1]}];
+stepGame(catchGame,1/120);
+assert.ok(catchGame.events.some(event=>event.type==='flip'));
+assert.ok(catchGame.balls[0].vy<0,'The generous window must actually return the ball upwards');
 const wav=encodeWav({numberOfChannels:2,sampleRate:44100,length:2,getChannelData:channel=>new Float32Array(channel?[.5,-.5]:[1,-1])});
 const bytes=new DataView(wav);
 assert.equal(Buffer.from(wav).subarray(0,4).toString(),'RIFF');
