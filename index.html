@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080909">
   <title>BEYTH STUDIO — 少し、遊んでいって。</title>
-  <meta name="description" content="小さなアプリを、つくっています。BEYTH STUDIOの作品と、触って遊べる光の展示室。Tonight?・ライムの木・ギガ番長。">
+  <meta name="description" content="小さなアプリを、つくっています。BEYTH STUDIOの作品と、ヒットで音をつくるピンボール。Tonight?・ライムの木・ギガ番長。">
   <meta name="google-site-verification" content="j7tbbjF2nMdNm3nH-FnFJfHTV13XMTFcjdo8QKFCyXQ">
   <link rel="canonical" href="https://beythstudio.com/">
   <meta property="og:title" content="BEYTH STUDIO — 少し、遊んでいって。">
-  <meta property="og:description" content="小さなアプリを、つくっています。作品と、触って遊べる光の展示室。">
+  <meta property="og:description" content="小さなアプリを、つくっています。作品と、ヒットで音をつくるピンボール。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://beythstudio.com/">
   <meta property="og:image" content="https://beythstudio.com/assets/logo_ogp.png?v=2">
@@ -37,28 +37,36 @@
         <p class="eyebrow"><span></span>INDEPENDENT APP STUDIO</p>
         <h1 id="hero-title">PLAY<br><em>a little.</em></h1>
         <p class="hero-invitation">少し、遊んでいって。</p>
+        <p class="hero-description">ヒットするたび、音が重なる。<br>できた曲は、持ち帰れます。</p>
       </div>
-      <div class="light-play" data-state="loading" data-shape="0" data-motion="running">
-        <canvas id="light-canvas" aria-hidden="true"></canvas>
-        <span class="pointer-ring" aria-hidden="true"></span>
-        <div class="play-hint" id="play-hint"><span class="hint-rule" aria-hidden="true"></span><span class="hint-copy">つかんで、はなす。</span></div>
-        <p class="play-unavailable" hidden>光の展示を表示できませんでした。<br>作品はこの下からご覧いただけます。</p>
-        <noscript><p class="play-unavailable">光で遊ぶにはJavaScriptを有効にしてください。</p></noscript>
-        <div class="play-toolbar" hidden>
-          <button class="shape-button" type="button" aria-label="光のかたちを変える"><span class="shape-number">01</span><span class="shape-name">ORBIT</span><span aria-hidden="true">↻</span></button>
-          <div class="play-actions">
-            <button class="pluck-button" type="button">はじく <span aria-hidden="true">✳</span></button>
-            <button class="sound-button" type="button" data-sound="false" aria-label="音を入れる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path class="sound-waves" d="M16 8c2 2 2 6 0 8m3-11c4 4 4 10 0 14"/><path class="sound-off" d="m17 10 4 4m0-4-4 4"/></svg></button>
-            <button class="motion-button" type="button" data-paused="false" aria-label="光の動きを止める"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="pause-icon" d="M8 6v12M16 6v12"/><path class="resume-icon" d="m8 5 11 7-11 7V5Z"/></svg></button>
+      <div class="pinball" data-state="loading" data-mode="ready" aria-label="ヒットで曲をつくるピンボール">
+        <div class="game-heading"><p>HIT A NOTE.</p><div class="game-score"><span>SCORE <b class="score-value">000</b></span><span class="time-value" aria-label="残り時間">00:30</span></div></div>
+        <div class="pinball-board">
+          <canvas id="pinball-canvas" aria-hidden="true"></canvas>
+          <div class="board-overlay"><p class="start-note">30秒、音で遊ぼう。</p><p class="board-instruction">球が下に来たら、タップ / SPACE</p></div>
+          <div class="round-result" hidden>
+            <p class="result-eyebrow">YOUR LITTLE TRACK</p>
+            <h2 class="result-title">あなたの30秒が、1曲に。</h2>
+            <p class="result-stats"></p>
+            <button class="listen-button" type="button">できた曲を聴く ▷</button>
+            <button class="save-button" type="button">曲を保存 ↓</button>
+            <button class="replay-button" type="button">もう一回遊ぶ ↻</button>
           </div>
+          <span class="game-message" aria-hidden="true"></span>
         </div>
-        <p class="sr-only" id="play-status" role="status" aria-live="polite"></p>
+        <div class="music-controls">
+          <div class="music-preview"><p>ヒットが、音になる。<span class="combo-value" aria-hidden="true">MAKE A LITTLE MUSIC</span></p><div class="sequence" role="img" aria-label="ヒットで増えるベース、メロディー、ビートの音"></div></div>
+          <button class="flip-button" type="button" disabled aria-describedby="game-help">音ありで、スタート ↗</button>
+        </div>
+        <div class="game-footer"><p id="game-help">タップ / SPACE で弾く · 4連続ヒットで、もう1球</p><div><button class="pause-button" type="button" hidden>一時停止</button><button class="sound-button" type="button" aria-label="音を消す" aria-pressed="true">音 ON</button></div></div>
+        <p id="play-status" role="status" aria-live="polite" class="sr-only"></p>
+        <noscript><p class="no-script">音で遊ぶには、JavaScriptを有効にしてください。</p></noscript>
       </div>
     </section>
     <nav class="project-strip shell" aria-label="作品を選ぶ">
-      <a href="#tonight" class="project-link" data-tone="1"><span class="project-number">01</span><span class="project-dot rose"></span><span class="project-name">Tonight?</span><img src="icon.png" width="60" height="60" alt=""><span class="project-arrow" aria-hidden="true">↗</span></a>
-      <a href="#rhyme-tree" class="project-link" data-tone="2"><span class="project-number">02</span><span class="project-dot green"></span><span class="project-name">ライムの木</span><img src="assets/rhyme-tree-icon-1024.png" width="60" height="60" alt=""><span class="project-arrow" aria-hidden="true">↗</span></a>
-      <a href="#giga-bancho" class="project-link" data-tone="3"><span class="project-number">03</span><span class="project-dot cyan"></span><span class="project-name">ギガ番長</span><img src="assets/giga-bancho-icon.png" width="60" height="60" alt=""><span class="project-arrow" aria-hidden="true">↗</span></a>
+      <a href="#tonight" class="project-link"><span class="project-number">01</span><span class="project-dot rose"></span><span class="project-name">Tonight?</span><img src="icon.png" width="60" height="60" alt=""><span class="project-arrow" aria-hidden="true">↗</span></a>
+      <a href="#rhyme-tree" class="project-link"><span class="project-number">02</span><span class="project-dot green"></span><span class="project-name">ライムの木</span><img src="assets/rhyme-tree-icon-1024.png" width="60" height="60" alt=""><span class="project-arrow" aria-hidden="true">↗</span></a>
+      <a href="#giga-bancho" class="project-link"><span class="project-number">03</span><span class="project-dot cyan"></span><span class="project-name">ギガ番長</span><img src="assets/giga-bancho-icon.png" width="60" height="60" alt=""><span class="project-arrow" aria-hidden="true">↗</span></a>
     </nav>
     <section class="works shell" id="works" aria-labelledby="works-heading">
       <div class="section-heading"><h2 id="works-heading">小さなアプリを、<br class="mobile-break">つくっています。</h2><p class="eyebrow">SELECTED WORKS <span class="work-count">/ 03</span></p></div>
